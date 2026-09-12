@@ -46,3 +46,17 @@ The first dealer slice is available at:
 ```
 
 Dealer registrations begin as `Submitted`. Admin users can move them to `Pending Company Verification`, mark them physically verified, approve them as active, or reject them. Company-scoped permissions and a dedicated verifier/approver UI are follow-up work.
+
+## Production Deployment
+
+```bash
+python manage.py migrate --noinput
+```
+
+Set the build command to:
+
+```bash
+python manage.py collectstatic --noinput
+```
+
+Configure the health check path as `/health`, then generate a Railway public domain. Dealer photos/documents use the local `media/` path by default; for production, mount a Railway volume and set `MEDIA_ROOT=/data/media`, or configure an approved object-storage backend before relying on uploads.
