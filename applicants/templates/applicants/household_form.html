@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Household details{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="mb-4">
+      <span class="text-primary fw-semibold">Step 1 of 2</span>
+      <h1 class="h3 mt-2">Tell us about your household</h1>
+      <p class="text-secondary">This information helps prevent duplicate household applications and route delivery.</p>
+    </div>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button class="btn btn-primary" type="submit">Save and continue</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

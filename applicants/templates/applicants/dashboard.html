@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Applicant dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+  <div>
+    <span class="text-primary fw-semibold">Applicant portal</span>
+    <h1 class="h3 mt-2">Welcome{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}</h1>
+  </div>
+  {% if household and not applications %}<a href="{% url 'apply' %}" class="btn btn-primary">Start application</a>{% endif %}
+</div>
+{% if not household %}
+  <div class="card border-0 shadow-sm"><div class="card-body p-4">
+    <h2 class="h5">Complete your household profile</h2>
+    <p class="text-secondary">We need your household address before you can apply.</p>
+    <a href="{% url 'household' %}" class="btn btn-primary">Add household details</a>
+  </div></div>
+{% else %}
+  <div class="card border-0 shadow-sm mb-4"><div class="card-body p-4">
+    <h2 class="h5">Household</h2>
+    <p class="mb-1">{{ household }}</p>
+    <p class="text-secondary mb-0">Family size: {{ household.family_size }}</p>
+    <a href="{% url 'household' %}" class="small">Edit household details</a>
+  </div></div>
+  <h2 class="h5 mb-3">Applications</h2>
+  {% if applications %}
+    <div class="row g-3">
+      {% for application in applications %}
+        <div class="col-lg-6"><div class="card border-0 shadow-sm"><div class="card-body p-4">
+          <div class="d-flex justify-content-between"><strong>{{ application.reference }}</strong><span class="badge text-bg-light">{{ application.status|title }}</span></div>
+          <dl class="row small mt-3 mb-0">
+            <dt class="col-6">Priority</dt><dd class="col-6">{{ application.priority }}</dd>
+            <dt class="col-6">Due date</dt><dd class="col-6">{{ application.due_date }}</dd>
+            <dt class="col-6">Brand</dt><dd class="col-6">{{ application.get_brand_preference_display }}</dd>
+          </dl>
+        </div></div></div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card border-0 shadow-sm"><div class="card-body p-4">
+      <p class="text-secondary mb-3">No applications yet.</p>
+      <a href="{% url 'apply' %}" class="btn btn-primary">Start application</a>
+    </div></div>
+  {% endif %}
+{% endif %}
+{% endblock %}
