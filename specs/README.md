@@ -13,6 +13,7 @@ These documents describe the smallest credible Kathmandu Valley pilot while pres
 - [Data model](data-model.md) — core entities, relationships, constraints, lifecycle states, and audit requirements.
 - [Security and operations](security-operations.md) — access control, privacy, security, hosting, backup, DR, and support requirements.
 - [Discovery decision register](discovery-decisions.md) — proposed defaults, unresolved decisions, owners, and sign-off gates.
+- [Pending work checklist](pending-checklist.md) — implementation, decision, deployment, and pilot-readiness checklist.
 
 ## Baseline decisions captured from the conversation
 
