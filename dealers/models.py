@@ -42,6 +42,12 @@ class DealerProfile(models.Model):
     )
     # Kept for compatibility with registrations created before the catalog existed.
     lpg_brand = models.CharField("Legacy LPG brand", max_length=120, blank=True)
+    brands = models.ManyToManyField(
+        LPGBrand,
+        through="DealerBrandAuthorization",
+        related_name="authorized_dealers",
+        blank=True,
+    )
     authorization_license = models.CharField("Authorization / license number", max_length=120)
     gps_latitude = models.DecimalField(
         max_digits=9,
@@ -131,3 +137,45 @@ class DealerProfile(models.Model):
 
     def __str__(self):
         return self.dealer_name
+
+
+class DealerBrandAuthorization(models.Model):
+    """A dealer may be authorized for multiple brands from multiple companies."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        ACTIVE = "active", "Active"
+        SUSPENDED = "suspended", "Suspended"
+        EXPIRED = "expired", "Expired"
+
+    dealer = models.ForeignKey(
+        DealerProfile,
+        on_delete=models.PROTECT,
+        related_name="brand_authorizations",
+    )
+    brand = models.ForeignKey(
+        LPGBrand,
+        on_delete=models.PROTECT,
+        related_name="dealer_authorizations",
+    )
+    authorization_license = models.CharField(max_length=120, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+    is_primary = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["dealer_id", "-is_primary", "brand_id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["dealer", "brand"],
+                name="one_dealer_brand_authorization",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.dealer} — {self.brand}"

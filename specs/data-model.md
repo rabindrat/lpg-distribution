@@ -27,13 +27,16 @@
 
 ### LPG supply chain
 
-- `LPGCompany` / organization subtype.
-- `LPGBrand`: stable catalog ID, stable code, English/Nepali names, active state, and (in the full model) company/regulatory metadata. The current implementation seeds the 55 supplied Nepal brands from a version-controlled JSON catalog and uses the database row as the runtime reference.
+- `LPGCompany` / organization subtype: stable catalog ID, legal name, operating location, contact details, and active state.
+- `CompanyBrand`: flexible company-brand relationship with primary/active flags; do not assume one company has only one brand.
+- `LPGBrand`: stable catalog ID, stable code, English/Nepali names, active state, and (in the full model) regulatory metadata. The current implementation seeds the 55 supplied Nepal brands from a version-controlled JSON catalog and uses the database row as the runtime reference.
+- `CompanyMembership`: user-to-company scope and company role such as administrator, supply operator, or reviewer.
 - `Dealer`: legal/contact profile, address, GPS, ownership, status, and organization scope.
-- `DealerBrandAuthorization`: dealer-brand relationship, license/reference, validity, approval state.
+- `DealerBrandAuthorization`: dealer-brand relationship, license/reference, validity, approval state; a dealer may be authorized for multiple brands from multiple companies.
 - `DealerRegistration`: submitted registration snapshot and current workflow state.
 - `DealerVerification`: onsite checklist, verifier, GPS, distance result, photos/documents, decision, and timestamp.
 - `SupplySubmission`: company daily supply/production/dispatch snapshot.
+- `CompanySupplyReport`: initial company-entered branded-cylinder report for received and dealer-delivered quantities; the full append-only supply/stock ledger remains pending.
 - `SupplyAdjustment`: approved correction linked to an original submission.
 - `DealerStockLedger`: append-only receipts, deliveries, adjustments, and calculated balance.
 - `Allocation`: application-to-dealer/brand assignment, priority, timestamps, and reason.

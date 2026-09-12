@@ -1,11 +1,13 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 
 from brands.models import LPGBrand
+from companies.roles import DEALER_GROUP
 
-from .models import DealerProfile
+from .models import DealerBrandAuthorization, DealerProfile
 
 User = get_user_model()
 
@@ -105,7 +107,8 @@ class DealerRegistrationForm(forms.Form):
         user.first_name = first_name
         user.last_name = last_name
         user.save(update_fields=["first_name", "last_name"])
-        return DealerProfile.objects.create(
+        user.groups.add(Group.objects.get(name=DEALER_GROUP))
+        dealer = DealerProfile.objects.create(
             user=user,
             dealer_name=self.cleaned_data["dealer_name"],
             proprietor_name=self.cleaned_data["proprietor_name"],
@@ -124,3 +127,11 @@ class DealerRegistrationForm(forms.Form):
             shop_photo=self.cleaned_data["shop_photo"],
             supporting_document=self.cleaned_data.get("supporting_document"),
         )
+        DealerBrandAuthorization.objects.create(
+            dealer=dealer,
+            brand=self.cleaned_data["brand"],
+            authorization_license=self.cleaned_data["authorization_license"],
+            status=DealerBrandAuthorization.Status.PENDING,
+            is_primary=True,
+        )
+        return dealer

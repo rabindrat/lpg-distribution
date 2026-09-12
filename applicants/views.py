@@ -6,6 +6,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.db import IntegrityError, transaction
 from django.shortcuts import redirect, render
 
+from companies.models import CompanyMembership
+
 from .forms import ApplicantRegistrationForm, HouseholdForm, LPGApplicationForm
 from .models import ApplicantProfile, Household, LPGApplication
 
@@ -14,6 +16,10 @@ def home(request):
     if request.user.is_authenticated:
         if getattr(request.user, "dealer_profile", None):
             return redirect("dealer-dashboard")
+        if CompanyMembership.objects.filter(
+            user=request.user, is_active=True, company__is_active=True
+        ).exists():
+            return redirect("company-dashboard")
         return redirect("dashboard")
     return render(request, "home.html")
 
@@ -30,6 +36,10 @@ def user_login(request):
             return redirect(next_url)
         if getattr(user, "dealer_profile", None):
             return redirect("dealer-dashboard")
+        if CompanyMembership.objects.filter(
+            user=user, is_active=True, company__is_active=True
+        ).exists():
+            return redirect("company-dashboard")
         return redirect("dashboard")
     return render(request, "registration/login.html", {"form": form, "next": request.GET.get("next")})
 

@@ -4,7 +4,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import DealerProfile
+from .models import DealerBrandAuthorization, DealerProfile
 from brands.models import LPGBrand
 
 User = get_user_model()
@@ -43,6 +43,11 @@ class DealerFlowTests(TestCase):
         self.assertEqual(dealer.status, DealerProfile.Status.SUBMITTED)
         self.assertEqual(dealer.lpg_brand, "Nepal Gas")
         self.assertEqual(dealer.brand_id, 29)
+        self.assertTrue(
+            DealerBrandAuthorization.objects.filter(
+                dealer=dealer, brand_id=29, is_primary=True
+            ).exists()
+        )
 
     def test_dealer_dashboard_requires_dealer_profile(self):
         user = User.objects.create_user(username="123456789", password="password")

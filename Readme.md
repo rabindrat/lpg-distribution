@@ -50,6 +50,20 @@ python manage.py seed_brands
 
 Do not renumber or reuse an existing ID. Retire a brand with `is_active: false`; add new brands with a new ID and then rerun the command.
 
+## Company workflow
+
+The initial company portal is available at `/company/dashboard/`. A company user must be assigned a `CompanyMembership` in Django Admin. The portal is scoped to that membership and currently supports daily branded-cylinder reports for quantities received and delivered to dealers.
+
+Seed the supplied company catalog after seeding brands:
+
+```bash
+python manage.py seed_companies
+```
+
+The company catalog is stored in `companies/data/nepal_lpg_companies.csv`. Its company IDs are explicit and stable. The company-to-brand relationship is deliberately modeled separately, so additional brands can be linked later without changing the company record.
+
+The initial CSV links each row to the closest existing brand code (for example, Sugam/STC, Himal/Gauri Shankar, Shriram/Shreeram, and Ugrachandi/Lokpriya aliases). These mappings should be confirmed against the final regulatory/company master before production use.
+
 ## Dealer workflow
 
 The first dealer slice is available at:
@@ -67,6 +81,7 @@ Dealer registrations begin as `Submitted`. Admin users can move them to `Pending
 ```bash
 python manage.py migrate --noinput
 python manage.py seed_brands
+python manage.py seed_companies
 ```
 
 Set the build command to:

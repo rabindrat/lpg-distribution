@@ -29,6 +29,7 @@ lpg/
 ├── households/
 ├── applicants/
 ├── brands/
+├── companies/
 ├── dealers/
 ├── verification/
 ├── applications/

@@ -1,6 +1,11 @@
 from django.contrib import admin, messages
 
-from .models import DealerProfile
+from .models import DealerBrandAuthorization, DealerProfile
+
+
+class DealerBrandAuthorizationInline(admin.TabularInline):
+    model = DealerBrandAuthorization
+    extra = 0
 
 
 @admin.action(description="Move selected dealers to pending verification")
@@ -72,3 +77,11 @@ class DealerProfileAdmin(admin.ModelAdmin):
         "approved_at",
     )
     actions = [mark_pending_verification, mark_physically_verified, approve_dealers, reject_dealers]
+    inlines = [DealerBrandAuthorizationInline]
+
+
+@admin.register(DealerBrandAuthorization)
+class DealerBrandAuthorizationAdmin(admin.ModelAdmin):
+    list_display = ("dealer", "brand", "status", "is_primary")
+    list_filter = ("status", "is_primary", "brand")
+    search_fields = ("dealer__dealer_name", "brand__name_en", "brand__code")

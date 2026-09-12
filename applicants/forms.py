@@ -1,9 +1,11 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 
 from brands.models import LPGBrand
+from companies.roles import APPLICANT_GROUP
 
 from .models import ApplicantProfile, Household, LPGApplication
 
@@ -68,6 +70,7 @@ class ApplicantRegistrationForm(forms.Form):
         user.first_name = first_name
         user.last_name = last_name
         user.save(update_fields=["first_name", "last_name"])
+        user.groups.add(Group.objects.get(name=APPLICANT_GROUP))
         ApplicantProfile.objects.create(
             user=user,
             mobile_number=self.cleaned_data["mobile_number"],

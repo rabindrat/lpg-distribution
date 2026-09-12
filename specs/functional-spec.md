@@ -58,6 +58,13 @@ The system is a single platform with role-specific interfaces:
 - Initial eligible categories are Labourer, Student, and Individual/Family/Household.
 - Commercial customers are out of scope until approved.
 - Default policy: one household may receive at most one cylinder per calendar month, regardless of LPG brand.
+
+### User groups and company operations
+
+- The initial access hierarchy has four groups: `NOC / GOV IT`, `Companies`, `Dealers`, and `Applicants`.
+- NOC/GOV IT users administer and oversee the system; company users are scoped to their LPG company; dealers are scoped to their own registration and authorizations; applicants are scoped to their own household and applications.
+- A company may be linked to multiple LPG brands, and a dealer may hold multiple brand authorizations spanning multiple companies.
+- Company users may submit branded daily supply reports containing cylinders received and cylinders delivered to dealers. Detailed dispatch, receipt, stock, invoice, reconciliation, and approval workflows require the later supply-chain modules.
 - The monthly reset is proposed for 00:00 on the first day of the calendar month in the approved business timezone.
 - The system must distinguish pending/allocated applications from consumed entitlement.
 - Default recommendation: consume entitlement only after verified delivery; the final policy is TBD.
