@@ -1,7 +1,7 @@
 Install requirements
 
 ```bash
-pip install -r requirements.txt
+poetry install
 ```
 
 Run Django app:
