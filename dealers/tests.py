@@ -4,8 +4,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import DealerBrandAuthorization, DealerProfile
-from brands.models import LPGBrand
+from .models import DealerBrandAuthorization, DealerProfile, DealerRegistry
 
 User = get_user_model()
 
@@ -14,6 +13,7 @@ class DealerFlowTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         call_command("seed_brands", verbosity=0)
+        call_command("seed_dealers", verbosity=0)
 
     def registration_data(self):
         return {
@@ -41,8 +41,7 @@ class DealerFlowTests(TestCase):
         self.assertRedirects(response, reverse("dealer-dashboard"))
         dealer = DealerProfile.objects.get(mobile_number="+9779812345688")
         self.assertEqual(dealer.status, DealerProfile.Status.SUBMITTED)
-        self.assertEqual(dealer.lpg_brand, "Nepal Gas")
-        self.assertEqual(dealer.brand_id, 29)
+        self.assertEqual(dealer.display_brand, "Nepal Gas")
         self.assertTrue(
             DealerBrandAuthorization.objects.filter(
                 dealer=dealer, brand_id=29, is_primary=True
@@ -72,8 +71,6 @@ class DealerFlowTests(TestCase):
             tole="Tole",
             address="Address",
             house_plot_number="1",
-            brand=LPGBrand.objects.get(brand_id=29),
-            lpg_brand="Nepal Gas",
             authorization_license="LIC-1",
             gps_latitude="27.700000",
             gps_longitude="85.300000",
@@ -87,3 +84,40 @@ class DealerFlowTests(TestCase):
         dealer.refresh_from_db()
         self.assertEqual(dealer.status, DealerProfile.Status.ACTIVE)
         self.assertEqual(dealer.approved_by, approver)
+
+    def test_seeded_dealer_can_be_claimed_during_registration(self):
+        data = self.registration_data()
+        data.update(
+            {
+                "registry_dealer": "1",
+                "dealer_name": "A M Kirana Store",
+                "proprietor_name": "Lal Bahadur Pun",
+                "mobile_number": "9803015389",
+                "address": "Buddha Marga, Godawari",
+                "municipality": "Godawari",
+                "ward": "1",
+            }
+        )
+        data["shop_photo"] = SimpleUploadedFile("shop.jpg", b"photo", content_type="image/jpeg")
+        response = self.client.post(reverse("dealer-register"), data)
+        self.assertRedirects(response, reverse("dealer-dashboard"))
+        registry = DealerRegistry.objects.get(registry_id=1)
+        self.assertEqual(registry.status, DealerRegistry.Status.CLAIMED)
+        self.assertEqual(registry.onboarded_dealer.dealer_name, "A M Kirana Store")
+        self.assertEqual(registry.phones, ["9803015389"])
+
+    def test_unique_seeded_phone_auto_reconciles_without_selection(self):
+        data = self.registration_data()
+        data.update(
+            {
+                "dealer_name": "Seeded Dealer Name",
+                "mobile_number": "9803015389",
+            }
+        )
+        data["shop_photo"] = SimpleUploadedFile("shop.jpg", b"photo", content_type="image/jpeg")
+        response = self.client.post(reverse("dealer-register"), data)
+        self.assertRedirects(response, reverse("dealer-dashboard"))
+        self.assertEqual(
+            DealerRegistry.objects.get(registry_id=1).status,
+            DealerRegistry.Status.CLAIMED,
+        )

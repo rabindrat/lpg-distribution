@@ -103,8 +103,6 @@ class LPGApplication(models.Model):
         null=True,
         blank=True,
     )
-    # Kept for compatibility with records created before the brand catalog existed.
-    preferred_brand_name = models.CharField(max_length=100, blank=True)
     status = models.CharField(
         max_length=20,
         choices=Status.choices,

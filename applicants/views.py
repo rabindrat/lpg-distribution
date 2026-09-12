@@ -89,8 +89,6 @@ def apply(request):
                 application = form.save(commit=False)
                 application.applicant = request.user
                 application.household = household_record
-                if application.preferred_brand:
-                    application.preferred_brand_name = application.preferred_brand.name_en
                 application.save()
         except IntegrityError:
             form.add_error(None, "This household already has an application for the current month.")

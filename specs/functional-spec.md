@@ -89,6 +89,8 @@ The system is a single platform with role-specific interfaces:
 ### FR-5: Dealer self-registration and approval
 
 - Dealer registration captures legal/contact details, municipality/ward/tole, complete address, plot/house number, LPG brand authorization, license details, GPS, shop photo, and supporting documents.
+- The system may preload dealer directory entries. An applicant can select a matching entry to prefill registration; all listed contact numbers are retained, and a unique phone match can reconcile the directory entry automatically.
+- Seeded directory records remain unclaimed until a phone-verified onboarding flow claims them. A collision with an existing authenticated dealer account must not overwrite that account.
 - Dealer GPS and at least one fresh shop-front photo are proposed as mandatory.
 - A dealer may be authorized for multiple brands only if the company/brand relationship is explicitly represented.
 - Physical inspection by an LPG company representative is mandatory under the current proposal.

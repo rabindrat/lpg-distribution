@@ -32,6 +32,7 @@
 - `LPGBrand`: stable catalog ID, stable code, English/Nepali names, active state, and (in the full model) regulatory metadata. The current implementation seeds the 55 supplied Nepal brands from a version-controlled JSON catalog and uses the database row as the runtime reference.
 - `CompanyMembership`: user-to-company scope and company role such as administrator, supply operator, or reviewer.
 - `Dealer`: legal/contact profile, address, GPS, ownership, status, and organization scope.
+- `DealerRegistry`: preloaded dealer/depot directory entry with source data, normalized `phones` array, brand, locality, and onboarding/claim state.
 - `DealerBrandAuthorization`: dealer-brand relationship, license/reference, validity, approval state; a dealer may be authorized for multiple brands from multiple companies.
 - `DealerRegistration`: submitted registration snapshot and current workflow state.
 - `DealerVerification`: onsite checklist, verifier, GPS, distance result, photos/documents, decision, and timestamp.

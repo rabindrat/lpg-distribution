@@ -82,7 +82,6 @@ class ApplicantFlowTests(TestCase):
             {
                 "category": LPGApplication.Category.STUDENT,
                 "brand_preference": LPGApplication.BrandPreference.ANY,
-                "preferred_brand_name": "",
             },
         )
         self.assertRedirects(response, reverse("dashboard"))
@@ -140,4 +139,3 @@ class ApplicantFlowTests(TestCase):
         self.assertRedirects(response, reverse("dashboard"))
         application = LPGApplication.objects.get(household=household)
         self.assertEqual(application.preferred_brand_id, 29)
-        self.assertEqual(application.preferred_brand_name, "Nepal Gas")

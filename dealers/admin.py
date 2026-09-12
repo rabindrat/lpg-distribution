@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 
-from .models import DealerBrandAuthorization, DealerProfile
+from .models import DealerBrandAuthorization, DealerProfile, DealerRegistry
 
 
 class DealerBrandAuthorizationInline(admin.TabularInline):
@@ -58,14 +58,13 @@ class DealerProfileAdmin(admin.ModelAdmin):
         "status",
         "created_at",
     )
-    list_filter = ("status", "municipality", "brand")
+    list_filter = ("status", "municipality", "brand_authorizations__brand")
     search_fields = (
         "dealer_name",
         "proprietor_name",
         "mobile_number",
         "authorization_license",
-        "brand__name_en",
-        "lpg_brand",
+        "brand_authorizations__brand__name_en",
     )
     readonly_fields = (
         "user",
@@ -85,3 +84,19 @@ class DealerBrandAuthorizationAdmin(admin.ModelAdmin):
     list_display = ("dealer", "brand", "status", "is_primary")
     list_filter = ("status", "is_primary", "brand")
     search_fields = ("dealer__dealer_name", "brand__name_en", "brand__code")
+
+
+@admin.register(DealerRegistry)
+class DealerRegistryAdmin(admin.ModelAdmin):
+    list_display = (
+        "registry_id",
+        "dealer_name",
+        "brand",
+        "district",
+        "local_level",
+        "status",
+        "onboarded_dealer",
+    )
+    list_filter = ("status", "brand", "district", "local_level")
+    search_fields = ("dealer_name", "contact_person", "address", "phones")
+    readonly_fields = ("registry_id", "created_at", "updated_at")

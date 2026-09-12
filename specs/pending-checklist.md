@@ -89,6 +89,8 @@ Use this as the working checklist for the Kathmandu Valley pilot. A checked item
 - [x] Add the initial LPG brand reference model and seed catalog.
 - [x] Replace applicant/dealer free-text brand entry with approved active-brand relationships; retain legacy text values for compatibility during migration.
 - [x] Add initial company membership groups and a scoped company supply-report dashboard.
+- [x] Add the collected dealer directory seed with normalized multi-phone storage and claim matching.
+- [ ] Add OTP verification and collision-safe account claim/recovery workflow.
 - [ ] Introduce a separate `Entitlement` model with one record per household/month.
 - [ ] Implement explicit state-transition services for applications, dealers, verification, allocation, delivery, invoices, supply, and stock.
 - [ ] Add immutable audit events and workflow-transition history.

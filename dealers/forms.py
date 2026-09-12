@@ -3,11 +3,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
+import re
 
 from brands.models import LPGBrand
 from companies.roles import DEALER_GROUP
 
-from .models import DealerBrandAuthorization, DealerProfile
+from .models import DealerBrandAuthorization, DealerProfile, DealerRegistry
 
 User = get_user_model()
 
@@ -16,7 +17,18 @@ def normalize_mobile(value):
     return "".join(value.split()).replace("-", "")
 
 
+def normalize_phone(value):
+    return re.sub(r"[^0-9]", "", value or "")
+
+
 class DealerRegistrationForm(forms.Form):
+    registry_dealer = forms.ModelChoiceField(
+        queryset=DealerRegistry.objects.none(),
+        required=False,
+        label="Existing dealer/depot record (optional)",
+        empty_label="I am a new dealer or my record is not listed",
+        help_text="Select your preloaded record to start with the directory details. Phone verification is still required.",
+    )
     dealer_name = forms.CharField(max_length=160, label="Dealer / shop name")
     proprietor_name = forms.CharField(max_length=160, label="Proprietor name")
     mobile_number = forms.CharField(
@@ -37,6 +49,7 @@ class DealerRegistrationForm(forms.Form):
     house_plot_number = forms.CharField(max_length=60, label="House / plot number")
     brand = forms.ModelChoiceField(
         queryset=LPGBrand.objects.none(),
+        required=False,
         label="LPG brand",
         empty_label="Select a brand",
     )
@@ -71,7 +84,11 @@ class DealerRegistrationForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        self.registry_matches = []
         super().__init__(*args, **kwargs)
+        self.fields["registry_dealer"].queryset = DealerRegistry.objects.filter(
+            status=DealerRegistry.Status.UNCLAIMED
+        ).select_related("brand")
         self.fields["brand"].queryset = LPGBrand.objects.filter(
             is_active=True
         ).order_by("brand_id")
@@ -82,6 +99,14 @@ class DealerRegistrationForm(forms.Form):
             mobile_number=mobile
         ).exists():
             raise forms.ValidationError("An account with this mobile number already exists.")
+        phone = normalize_phone(mobile)
+        self.registry_matches = [
+            entry
+            for entry in DealerRegistry.objects.filter(
+                status=DealerRegistry.Status.UNCLAIMED
+            )
+            if phone in entry.phones
+        ]
         return mobile
 
     def clean(self):
@@ -95,6 +120,21 @@ class DealerRegistrationForm(forms.Form):
                 validate_password(password1)
             except forms.ValidationError as error:
                 self.add_error("password1", error)
+        registry_dealer = cleaned.get("registry_dealer")
+        if registry_dealer and registry_dealer.status != DealerRegistry.Status.UNCLAIMED:
+            self.add_error("registry_dealer", "This directory record is no longer available for claiming.")
+        if not registry_dealer and len(self.registry_matches) == 1:
+            cleaned["registry_dealer"] = self.registry_matches[0]
+            registry_dealer = cleaned["registry_dealer"]
+        elif not registry_dealer and len(self.registry_matches) > 1:
+            self.add_error(
+                "mobile_number",
+                "This phone number matches multiple directory records. Select the correct dealer record.",
+            )
+        if registry_dealer and not cleaned.get("brand"):
+            cleaned["brand"] = registry_dealer.brand
+        if not cleaned.get("brand"):
+            self.add_error("brand", "Select an LPG brand.")
         return cleaned
 
     def save(self):
@@ -119,8 +159,7 @@ class DealerRegistrationForm(forms.Form):
             tole=self.cleaned_data["tole"],
             address=self.cleaned_data["address"],
             house_plot_number=self.cleaned_data["house_plot_number"],
-            brand=self.cleaned_data["brand"],
-            lpg_brand=self.cleaned_data["brand"].name_en,
+            phones=[normalize_phone(self.cleaned_data["mobile_number"])],
             authorization_license=self.cleaned_data["authorization_license"],
             gps_latitude=self.cleaned_data["gps_latitude"],
             gps_longitude=self.cleaned_data["gps_longitude"],
@@ -134,4 +173,32 @@ class DealerRegistrationForm(forms.Form):
             status=DealerBrandAuthorization.Status.PENDING,
             is_primary=True,
         )
+        registry_dealer = self.cleaned_data.get("registry_dealer")
+        if registry_dealer:
+            registry_dealer.dealer_name = dealer.dealer_name
+            registry_dealer.contact_person = dealer.proprietor_name
+            registry_dealer.phones = list(
+                dict.fromkeys(
+                    registry_dealer.phones
+                    + [normalize_phone(self.cleaned_data["mobile_number"])]
+                )
+            )
+            registry_dealer.address = dealer.address
+            registry_dealer.local_level = dealer.municipality
+            registry_dealer.ward = dealer.ward
+            registry_dealer.onboarded_dealer = dealer
+            registry_dealer.status = DealerRegistry.Status.CLAIMED
+            registry_dealer.save(
+                update_fields=[
+                    "dealer_name",
+                    "contact_person",
+                    "phones",
+                    "address",
+                    "local_level",
+                    "ward",
+                    "onboarded_dealer",
+                    "status",
+                    "updated_at",
+                ]
+            )
         return dealer

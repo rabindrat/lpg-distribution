@@ -64,6 +64,16 @@ The company catalog is stored in `companies/data/nepal_lpg_companies.csv`. Its c
 
 The initial CSV links each row to the closest existing brand code (for example, Sugam/STC, Himal/Gauri Shankar, Shriram/Shreeram, and Ugrachandi/Lokpriya aliases). These mappings should be confirmed against the final regulatory/company master before production use.
 
+## Dealer directory seed
+
+The collected dealer directory is stored in `dealers/data/kathmandu_valley_dealers.csv` and can be loaded with:
+
+```bash
+python manage.py seed_dealers
+```
+
+The seed creates 189 unclaimed directory entries. Each entry stores normalized landline/mobile values in a `phones` array. Registration can select a directory entry to prefill the form; a unique phone match also reconciles automatically. Existing authenticated dealer accounts are never overwritten by a phone collision—OTP verification and account recovery must govern that case.
+
 ## Dealer workflow
 
 The first dealer slice is available at:
@@ -78,10 +88,21 @@ Dealer registrations begin as `Submitted`. Admin users can move them to `Pending
 
 ## Production Deployment
 
+Set the Railway pre-deploy command to:
+
+```bash
+./pre-run.sh
+```
+
+This runs migrations, seeds brands/companies/dealers in dependency order, and collects static assets. The script can also be run locally before starting the application.
+
+Equivalent commands are:
+
 ```bash
 python manage.py migrate --noinput
 python manage.py seed_brands
 python manage.py seed_companies
+python manage.py seed_dealers
 ```
 
 Set the build command to:

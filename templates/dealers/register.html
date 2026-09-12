@@ -20,4 +20,32 @@
     </div>
   </div>
 </div>
+{{ registry_data|json_script:"dealer-registry-data" }}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const select = document.getElementById("id_registry_dealer");
+    const data = JSON.parse(document.getElementById("dealer-registry-data").textContent);
+    if (!select) return;
+    const fields = {
+      dealer_name: document.getElementById("id_dealer_name"),
+      proprietor_name: document.getElementById("id_proprietor_name"),
+      mobile_number: document.getElementById("id_mobile_number"),
+      address: document.getElementById("id_address"),
+      municipality: document.getElementById("id_municipality"),
+      ward: document.getElementById("id_ward"),
+      brand: document.getElementById("id_brand")
+    };
+    select.addEventListener("change", function () {
+      const record = data.find((item) => String(item.id) === select.value);
+      if (!record) return;
+      fields.dealer_name.value = record.dealer_name || "";
+      fields.proprietor_name.value = record.contact_person || "";
+      fields.mobile_number.value = (record.phones || [""])[0] || "";
+      fields.address.value = record.address || "";
+      fields.municipality.value = record.local_level || record.district || "";
+      fields.ward.value = record.ward || "";
+      fields.brand.value = String(record.brand_id);
+    });
+  });
+</script>
 {% endblock %}

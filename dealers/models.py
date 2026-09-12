@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -33,15 +34,7 @@ class DealerProfile(models.Model):
     tole = models.CharField("Tole / street", max_length=160)
     address = models.CharField(max_length=240)
     house_plot_number = models.CharField("House / plot number", max_length=60)
-    brand = models.ForeignKey(
-        LPGBrand,
-        on_delete=models.PROTECT,
-        related_name="dealers",
-        null=True,
-        blank=True,
-    )
-    # Kept for compatibility with registrations created before the catalog existed.
-    lpg_brand = models.CharField("Legacy LPG brand", max_length=120, blank=True)
+    phones = models.JSONField(default=list, blank=True, encoder=DjangoJSONEncoder)
     brands = models.ManyToManyField(
         LPGBrand,
         through="DealerBrandAuthorization",
@@ -133,7 +126,8 @@ class DealerProfile(models.Model):
 
     @property
     def display_brand(self):
-        return self.brand.name_en if self.brand else self.lpg_brand
+        authorization = self.brand_authorizations.select_related("brand").first()
+        return authorization.brand.name_en if authorization else ""
 
     def __str__(self):
         return self.dealer_name
@@ -179,3 +173,50 @@ class DealerBrandAuthorization(models.Model):
 
     def __str__(self):
         return f"{self.dealer} — {self.brand}"
+
+
+class DealerRegistry(models.Model):
+    """Seeded dealer/depot directory awaiting phone-verified onboarding."""
+
+    class Status(models.TextChoices):
+        UNCLAIMED = "unclaimed", "Unclaimed"
+        CLAIMED = "claimed", "Claimed"
+        ONBOARDED = "onboarded", "Onboarded"
+        MERGED = "merged", "Merged"
+
+    registry_id = models.PositiveIntegerField(primary_key=True)
+    brand = models.ForeignKey(
+        LPGBrand,
+        on_delete=models.PROTECT,
+        related_name="registry_dealers",
+    )
+    dealer_name = models.CharField(max_length=200)
+    contact_person = models.CharField(max_length=160)
+    phones = models.JSONField(default=list, encoder=DjangoJSONEncoder)
+    address = models.CharField(max_length=240)
+    district = models.CharField(max_length=120, blank=True)
+    local_level = models.CharField(max_length=120, blank=True)
+    ward = models.CharField(max_length=20, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.UNCLAIMED,
+    )
+    onboarded_dealer = models.OneToOneField(
+        DealerProfile,
+        on_delete=models.SET_NULL,
+        related_name="registry_entry",
+        null=True,
+        blank=True,
+    )
+    source = models.CharField(max_length=120, default="kathmandu-valley-dealer-directory")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["brand_id", "dealer_name", "registry_id"]
+        verbose_name = "dealer directory entry"
+        verbose_name_plural = "dealer directory entries"
+
+    def __str__(self):
+        return f"{self.dealer_name} ({self.brand.name_en})"
