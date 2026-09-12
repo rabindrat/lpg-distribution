@@ -1,0 +1,99 @@
+# ==========================================
+# Python & Django Core
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.log
+*.pot
+*.pyc
+
+
+# ==========================================
+# Environments & Packages
+# ==========================================
+# Exclude your virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv/
+
+# Distribution / packaging (if applicable)
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# Databases & Local Settings
+# ==========================================
+# Exclude local SQLite database
+*.sqlite3
+db.sqlite3
+
+# Exclude local settings files that contain secrets
+local_settings.py
+.env
+.secrets/
+
+# ==========================================
+# Django Media & Assets
+# ==========================================
+# Never track user-uploaded media files
+media/
+media_root/
+
+# Optional: Ignore collected static files if you run collectstatic in deployment
+# static/
+# staticfiles/
+
+# ==========================================
+# Testing & Code Quality
+# ==========================================
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# ==========================================
+# IDEs & Text Editors
+# ==========================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+*~
+
+# ==========================================
+# OS Specific Files
+# ==========================================
+.DS_Store
+Thumbs.db
