@@ -1,6 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.db import IntegrityError, transaction
 from django.shortcuts import redirect, render
 
@@ -10,8 +12,26 @@ from .models import ApplicantProfile, Household, LPGApplication
 
 def home(request):
     if request.user.is_authenticated:
+        if getattr(request.user, "dealer_profile", None):
+            return redirect("dealer-dashboard")
         return redirect("dashboard")
     return render(request, "home.html")
+
+
+def user_login(request):
+    if request.user.is_authenticated:
+        return home(request)
+    form = AuthenticationForm(request, data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.get_user()
+        login(request, user)
+        next_url = request.POST.get("next")
+        if next_url:
+            return redirect(next_url)
+        if getattr(user, "dealer_profile", None):
+            return redirect("dealer-dashboard")
+        return redirect("dashboard")
+    return render(request, "registration/login.html", {"form": form, "next": request.GET.get("next")})
 
 
 def register(request):

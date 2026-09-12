@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Dealer dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <span class="text-primary fw-semibold">Dealer portal</span>
+    <h1 class="h3 mt-2">{{ dealer.dealer_name }}</h1>
+    <p class="text-secondary mb-0">{{ dealer.municipality }}, Ward {{ dealer.ward }} · {{ dealer.lpg_brand }}</p>
+  </div>
+  <span class="badge text-bg-light fs-6">{{ dealer.get_status_display }}</span>
+</div>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm"><div class="card-body p-4">
+      <h2 class="h5">Registration progress</h2>
+      <ol class="list-group list-group-numbered list-group-flush mt-3">
+        <li class="list-group-item px-0">Submitted</li>
+        <li class="list-group-item px-0">Company physical verification</li>
+        <li class="list-group-item px-0">Company final approval</li>
+        <li class="list-group-item px-0">Active dealer</li>
+      </ol>
+      {% if dealer.status == 'rejected' and dealer.rejection_reason %}
+        <div class="alert alert-warning mt-3 mb-0"><strong>Review note:</strong> {{ dealer.rejection_reason }}</div>
+      {% elif dealer.verification_notes %}
+        <div class="alert alert-light border mt-3 mb-0"><strong>Verification note:</strong> {{ dealer.verification_notes }}</div>
+      {% endif %}
+    </div></div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm"><div class="card-body p-4">
+      <h2 class="h5">Submitted details</h2>
+      <dl class="row small mt-3 mb-0">
+        <dt class="col-5">Proprietor</dt><dd class="col-7">{{ dealer.proprietor_name }}</dd>
+        <dt class="col-5">Mobile</dt><dd class="col-7">{{ dealer.mobile_number }}</dd>
+        <dt class="col-5">Address</dt><dd class="col-7">{{ dealer.address }}</dd>
+        <dt class="col-5">GPS</dt><dd class="col-7">{{ dealer.gps_latitude }}, {{ dealer.gps_longitude }}</dd>
+        <dt class="col-5">License</dt><dd class="col-7">{{ dealer.authorization_license }}</dd>
+      </dl>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

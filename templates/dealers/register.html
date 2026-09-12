@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Dealer registration{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="mb-4">
+      <span class="text-primary fw-semibold">Dealer portal</span>
+      <h1 class="h3 mt-2">Register your LPG shop</h1>
+      <p class="text-secondary">Submit your business, location, authorization, and shop evidence for company review.</p>
+    </div>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button class="btn btn-primary" type="submit">Submit dealer registration</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

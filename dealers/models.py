@@ -1,0 +1,119 @@
+from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.utils import timezone
+
+
+class DealerProfile(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        SUBMITTED = "submitted", "Submitted"
+        PENDING_VERIFICATION = "pending_verification", "Pending Company Verification"
+        CORRECTION_REQUIRED = "correction_required", "Verification Correction Required"
+        PHYSICALLY_VERIFIED = "physically_verified", "Physically Verified"
+        PENDING_APPROVAL = "pending_approval", "Pending Company Approval"
+        ACTIVE = "active", "Company Approved / Active"
+        REJECTED = "rejected", "Rejected"
+        SUSPENDED = "suspended", "Suspended"
+        INACTIVE = "inactive", "Inactive"
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="dealer_profile",
+    )
+    dealer_name = models.CharField(max_length=160)
+    proprietor_name = models.CharField(max_length=160)
+    mobile_number = models.CharField(max_length=20, unique=True)
+    email = models.EmailField()
+    municipality = models.CharField(max_length=120)
+    ward = models.CharField(max_length=20)
+    tole = models.CharField("Tole / street", max_length=160)
+    address = models.CharField(max_length=240)
+    house_plot_number = models.CharField("House / plot number", max_length=60)
+    lpg_brand = models.CharField("LPG brand", max_length=120)
+    authorization_license = models.CharField("Authorization / license number", max_length=120)
+    gps_latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        validators=[MinValueValidator(-90), MaxValueValidator(90)],
+    )
+    gps_longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        validators=[MinValueValidator(-180), MaxValueValidator(180)],
+    )
+    shop_photo = models.FileField(upload_to="dealers/shop-photos/")
+    supporting_document = models.FileField(
+        upload_to="dealers/supporting-documents/",
+        blank=True,
+    )
+    status = models.CharField(
+        max_length=30,
+        choices=Status.choices,
+        default=Status.SUBMITTED,
+    )
+    verification_notes = models.TextField(blank=True)
+    rejection_reason = models.TextField(blank=True)
+    verified_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="dealer_verifications",
+        null=True,
+        blank=True,
+    )
+    verified_at = models.DateTimeField(null=True, blank=True)
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="dealer_approvals",
+        null=True,
+        blank=True,
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        permissions = [
+            ("can_verify_dealers", "Can perform physical dealer verification"),
+            ("can_approve_dealers", "Can approve or reject dealers"),
+        ]
+
+    def submit(self):
+        self.status = self.Status.SUBMITTED
+        self.save(update_fields=["status", "updated_at"])
+
+    def mark_pending_verification(self):
+        self.status = self.Status.PENDING_VERIFICATION
+        self.save(update_fields=["status", "updated_at"])
+
+    def mark_verified(self, reviewer, notes=""):
+        self.status = self.Status.PENDING_APPROVAL
+        self.verified_by = reviewer
+        self.verified_at = timezone.now()
+        self.verification_notes = notes
+        self.save(
+            update_fields=[
+                "status",
+                "verified_by",
+                "verified_at",
+                "verification_notes",
+                "updated_at",
+            ]
+        )
+
+    def approve(self, approver):
+        self.status = self.Status.ACTIVE
+        self.approved_by = approver
+        self.approved_at = timezone.now()
+        self.save(update_fields=["status", "approved_by", "approved_at", "updated_at"])
+
+    def reject(self, reason=""):
+        self.status = self.Status.REJECTED
+        self.rejection_reason = reason
+        self.save(update_fields=["status", "rejection_reason", "updated_at"])
+
+    def __str__(self):
+        return self.dealer_name

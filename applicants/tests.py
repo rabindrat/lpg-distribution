@@ -27,6 +27,14 @@ class ApplicantFlowTests(TestCase):
         self.assertEqual(user.get_full_name(), "Sita Thapa")
         self.assertTrue(ApplicantProfile.objects.filter(user=user).exists())
 
+    def test_applicant_login_redirects_to_applicant_dashboard(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("login"),
+            {"username": "+9779812345678", "password": "password"},
+        )
+        self.assertRedirects(response, reverse("dashboard"))
+
     def setUp(self):
         self.user = User.objects.create_user(username="+9779812345678", password="password")
         self.profile = ApplicantProfile.objects.create(
