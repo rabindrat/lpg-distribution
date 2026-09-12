@@ -1,14 +1,20 @@
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
 from .models import DealerProfile
+from brands.models import LPGBrand
 
 User = get_user_model()
 
 
 class DealerFlowTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_brands", verbosity=0)
+
     def registration_data(self):
         return {
             "dealer_name": "Baneshwor LPG Centre",
@@ -20,7 +26,7 @@ class DealerFlowTests(TestCase):
             "tole": "Baneshwor",
             "address": "Main road, Baneshwor",
             "house_plot_number": "125A",
-            "lpg_brand": "Nepal Gas",
+            "brand": "29",
             "authorization_license": "LIC-12345",
             "gps_latitude": "27.6869",
             "gps_longitude": "85.3420",
@@ -36,6 +42,7 @@ class DealerFlowTests(TestCase):
         dealer = DealerProfile.objects.get(mobile_number="+9779812345688")
         self.assertEqual(dealer.status, DealerProfile.Status.SUBMITTED)
         self.assertEqual(dealer.lpg_brand, "Nepal Gas")
+        self.assertEqual(dealer.brand_id, 29)
 
     def test_dealer_dashboard_requires_dealer_profile(self):
         user = User.objects.create_user(username="123456789", password="password")
@@ -60,6 +67,7 @@ class DealerFlowTests(TestCase):
             tole="Tole",
             address="Address",
             house_plot_number="1",
+            brand=LPGBrand.objects.get(brand_id=29),
             lpg_brand="Nepal Gas",
             authorization_license="LIC-1",
             gps_latitude="27.700000",

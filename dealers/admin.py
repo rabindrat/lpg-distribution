@@ -49,12 +49,19 @@ class DealerProfileAdmin(admin.ModelAdmin):
         "dealer_name",
         "proprietor_name",
         "municipality",
-        "lpg_brand",
+        "display_brand",
         "status",
         "created_at",
     )
-    list_filter = ("status", "municipality", "lpg_brand")
-    search_fields = ("dealer_name", "proprietor_name", "mobile_number", "authorization_license")
+    list_filter = ("status", "municipality", "brand")
+    search_fields = (
+        "dealer_name",
+        "proprietor_name",
+        "mobile_number",
+        "authorization_license",
+        "brand__name_en",
+        "lpg_brand",
+    )
     readonly_fields = (
         "user",
         "created_at",

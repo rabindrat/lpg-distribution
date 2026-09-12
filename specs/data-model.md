@@ -28,7 +28,7 @@
 ### LPG supply chain
 
 - `LPGCompany` / organization subtype.
-- `LPGBrand`: company, name, active state, regulatory metadata.
+- `LPGBrand`: stable catalog ID, stable code, English/Nepali names, active state, and (in the full model) company/regulatory metadata. The current implementation seeds the 55 supplied Nepal brands from a version-controlled JSON catalog and uses the database row as the runtime reference.
 - `Dealer`: legal/contact profile, address, GPS, ownership, status, and organization scope.
 - `DealerBrandAuthorization`: dealer-brand relationship, license/reference, validity, approval state.
 - `DealerRegistration`: submitted registration snapshot and current workflow state.

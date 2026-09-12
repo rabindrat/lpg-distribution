@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 
+from brands.models import LPGBrand
+
 from .models import DealerProfile
 
 User = get_user_model()
@@ -31,7 +33,11 @@ class DealerRegistrationForm(forms.Form):
     tole = forms.CharField(max_length=160, label="Tole / street")
     address = forms.CharField(max_length=240, label="Complete address")
     house_plot_number = forms.CharField(max_length=60, label="House / plot number")
-    lpg_brand = forms.CharField(max_length=120, label="LPG brand")
+    brand = forms.ModelChoiceField(
+        queryset=LPGBrand.objects.none(),
+        label="LPG brand",
+        empty_label="Select a brand",
+    )
     authorization_license = forms.CharField(
         max_length=120,
         label="Authorization / license number",
@@ -61,6 +67,12 @@ class DealerRegistrationForm(forms.Form):
         strip=False,
         widget=forms.PasswordInput,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["brand"].queryset = LPGBrand.objects.filter(
+            is_active=True
+        ).order_by("brand_id")
 
     def clean_mobile_number(self):
         mobile = normalize_mobile(self.cleaned_data["mobile_number"])
@@ -104,7 +116,8 @@ class DealerRegistrationForm(forms.Form):
             tole=self.cleaned_data["tole"],
             address=self.cleaned_data["address"],
             house_plot_number=self.cleaned_data["house_plot_number"],
-            lpg_brand=self.cleaned_data["lpg_brand"],
+            brand=self.cleaned_data["brand"],
+            lpg_brand=self.cleaned_data["brand"].name_en,
             authorization_license=self.cleaned_data["authorization_license"],
             gps_latitude=self.cleaned_data["gps_latitude"],
             gps_longitude=self.cleaned_data["gps_longitude"],

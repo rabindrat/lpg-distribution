@@ -30,7 +30,7 @@
           <dl class="row small mt-3 mb-0">
             <dt class="col-6">Priority</dt><dd class="col-6">{{ application.priority }}</dd>
             <dt class="col-6">Due date</dt><dd class="col-6">{{ application.due_date }}</dd>
-            <dt class="col-6">Brand</dt><dd class="col-6">{{ application.get_brand_preference_display }}</dd>
+            <dt class="col-6">Brand</dt><dd class="col-6">{% if application.preferred_brand %}{{ application.preferred_brand.name_en }}{% else %}{{ application.get_brand_preference_display }}{% endif %}</dd>
           </dl>
         </div></div></div>
       {% endfor %}

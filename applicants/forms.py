@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 
+from brands.models import LPGBrand
+
 from .models import ApplicantProfile, Household, LPGApplication
 
 User = get_user_model()
@@ -91,14 +93,16 @@ class HouseholdForm(forms.ModelForm):
 
 
 class LPGApplicationForm(forms.ModelForm):
+    preferred_brand = forms.ModelChoiceField(
+        queryset=LPGBrand.objects.none(),
+        required=False,
+        label="Preferred LPG brand",
+        empty_label="Select a brand",
+    )
+
     class Meta:
         model = LPGApplication
-        fields = ["category", "brand_preference", "preferred_brand_name"]
-        widgets = {
-            "preferred_brand_name": forms.TextInput(
-                attrs={"placeholder": "For example, Nepal Gas"}
-            ),
-        }
+        fields = ["category", "brand_preference", "preferred_brand"]
         help_texts = {
             "category": "Labourer and Student applications are currently proposed as P1 priority.",
             "brand_preference": "Brand assignment rules are still subject to final approval.",
@@ -107,18 +111,21 @@ class LPGApplicationForm(forms.ModelForm):
     def __init__(self, *args, household=None, **kwargs):
         self.household = household
         super().__init__(*args, **kwargs)
+        self.fields["preferred_brand"].queryset = LPGBrand.objects.filter(
+            is_active=True
+        ).order_by("brand_id")
 
     def clean(self):
         cleaned = super().clean()
         preference = cleaned.get("brand_preference")
-        brand_name = cleaned.get("preferred_brand_name", "").strip()
-        if preference == LPGApplication.BrandPreference.SPECIFIC and not brand_name:
+        preferred_brand = cleaned.get("preferred_brand")
+        if preference == LPGApplication.BrandPreference.SPECIFIC and not preferred_brand:
             self.add_error(
-                "preferred_brand_name",
-                "Enter the preferred brand or choose Any available brand.",
+                "preferred_brand",
+                "Select the preferred brand or choose Any available brand.",
             )
         if preference == LPGApplication.BrandPreference.ANY:
-            cleaned["preferred_brand_name"] = ""
+            cleaned["preferred_brand"] = None
         if self.household:
             existing = LPGApplication.objects.filter(
                 household=self.household,

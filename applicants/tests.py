@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -11,6 +12,10 @@ User = get_user_model()
 
 
 class ApplicantFlowTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_brands", verbosity=0)
+
     def test_registration_creates_account_and_redirects_to_household(self):
         self.client.logout()
         response = self.client.post(
@@ -112,3 +117,27 @@ class ApplicantFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "already has an application")
         self.assertEqual(LPGApplication.objects.filter(household=household).count(), 1)
+
+    def test_specific_brand_is_stored_by_stable_catalog_id(self):
+        household = Household.objects.create(
+            municipality="Kathmandu Metropolitan City",
+            ward="10",
+            tole="Baneshwor",
+            house_number="125",
+            family_size=4,
+            created_by=self.user,
+        )
+        self.profile.household = household
+        self.profile.save(update_fields=["household"])
+        response = self.client.post(
+            reverse("apply"),
+            {
+                "category": LPGApplication.Category.HOUSEHOLD,
+                "brand_preference": LPGApplication.BrandPreference.SPECIFIC,
+                "preferred_brand": "29",
+            },
+        )
+        self.assertRedirects(response, reverse("dashboard"))
+        application = LPGApplication.objects.get(household=household)
+        self.assertEqual(application.preferred_brand_id, 29)
+        self.assertEqual(application.preferred_brand_name, "Nepal Gas")

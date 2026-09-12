@@ -33,7 +33,22 @@ The first front-end slice is available at:
 /dashboard/      View household and application status
 ```
 
-The forms use `django-crispy-forms` with `crispy-bootstrap5`. OTP verification, production brand reference data, and final household-policy decisions remain follow-up work.
+The forms use `django-crispy-forms` with `crispy-bootstrap5`. OTP verification and final household-policy decisions remain follow-up work.
+
+## LPG brand catalog
+
+The approved brand catalog is stored in two coordinated layers:
+
+- `brands/data/nepal_lpg_brands.json` is the reviewed, version-controlled seed catalog.
+- The `brands.LPGBrand` table is the runtime source of truth used by applicant and dealer forms.
+
+Brand IDs `1` through `55` are explicit and stable. Run the idempotent seed command after migrations (including on Railway):
+
+```bash
+python manage.py seed_brands
+```
+
+Do not renumber or reuse an existing ID. Retire a brand with `is_active: false`; add new brands with a new ID and then rerun the command.
 
 ## Dealer workflow
 
@@ -51,6 +66,7 @@ Dealer registrations begin as `Submitted`. Admin users can move them to `Pending
 
 ```bash
 python manage.py migrate --noinput
+python manage.py seed_brands
 ```
 
 Set the build command to:

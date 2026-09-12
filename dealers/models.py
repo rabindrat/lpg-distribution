@@ -3,6 +3,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
+from brands.models import LPGBrand
+
 
 class DealerProfile(models.Model):
     class Status(models.TextChoices):
@@ -31,7 +33,15 @@ class DealerProfile(models.Model):
     tole = models.CharField("Tole / street", max_length=160)
     address = models.CharField(max_length=240)
     house_plot_number = models.CharField("House / plot number", max_length=60)
-    lpg_brand = models.CharField("LPG brand", max_length=120)
+    brand = models.ForeignKey(
+        LPGBrand,
+        on_delete=models.PROTECT,
+        related_name="dealers",
+        null=True,
+        blank=True,
+    )
+    # Kept for compatibility with registrations created before the catalog existed.
+    lpg_brand = models.CharField("Legacy LPG brand", max_length=120, blank=True)
     authorization_license = models.CharField("Authorization / license number", max_length=120)
     gps_latitude = models.DecimalField(
         max_digits=9,
@@ -114,6 +124,10 @@ class DealerProfile(models.Model):
         self.status = self.Status.REJECTED
         self.rejection_reason = reason
         self.save(update_fields=["status", "rejection_reason", "updated_at"])
+
+    @property
+    def display_brand(self):
+        return self.brand.name_en if self.brand else self.lpg_brand
 
     def __str__(self):
         return self.dealer_name

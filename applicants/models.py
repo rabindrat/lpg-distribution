@@ -6,6 +6,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
 
+from brands.models import LPGBrand
+
 
 def current_month_start():
     today = timezone.localdate()
@@ -94,6 +96,14 @@ class LPGApplication(models.Model):
         choices=BrandPreference.choices,
         default=BrandPreference.ANY,
     )
+    preferred_brand = models.ForeignKey(
+        LPGBrand,
+        on_delete=models.PROTECT,
+        related_name="preferred_applications",
+        null=True,
+        blank=True,
+    )
+    # Kept for compatibility with records created before the brand catalog existed.
     preferred_brand_name = models.CharField(max_length=100, blank=True)
     status = models.CharField(
         max_length=20,
