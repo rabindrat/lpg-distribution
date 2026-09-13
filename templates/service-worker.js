@@ -1,9 +1,9 @@
-const CACHE_NAME = "kathmandu-lpg-shell-v1";
+const CACHE_NAME = "kathmandu-lpg-shell-v2";
 const OFFLINE_URL = "/offline/";
 const APP_SHELL = [
   OFFLINE_URL,
   "/manifest.webmanifest",
-  "/static/css/site.css?v=2",
+  "/static/css/site.css?v=3",
   "/static/img/cylinder.svg",
   "/static/img/icon-192.png",
   "/static/img/icon-512.png"
