@@ -20,6 +20,13 @@ echo "Seeding LPG companies and brand links..."
 echo "Seeding dealer directory..."
 "$PYTHON_BIN" "$MANAGE_PY" seed_dealers
 
+if [[ "${SEED_DEMO_DATA:-false}" == "true" ]]; then
+  echo "Seeding staging demo data..."
+  "$PYTHON_BIN" "$MANAGE_PY" seed_demo_data
+else
+  echo "Skipping staging demo data (set SEED_DEMO_DATA=true to enable)."
+fi
+
 echo "Collecting static assets..."
 "$PYTHON_BIN" "$MANAGE_PY" collectstatic --noinput
 

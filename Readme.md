@@ -113,7 +113,7 @@ Set the Railway pre-deploy command to:
 ./pre-run.sh
 ```
 
-This runs migrations, seeds brands/companies/dealers in dependency order, and collects static assets. The script can also be run locally before starting the application.
+This runs migrations, seeds brands/companies/dealers in dependency order, and collects static assets. The script can also seed staging demo data when `SEED_DEMO_DATA=true`; demo records are idempotent and are never enabled by default. Set `DEMO_DATA_PASSWORD` to the password for newly created demo accounts.
 
 Equivalent commands are:
 
@@ -122,6 +122,8 @@ python manage.py migrate --noinput
 python manage.py seed_brands
 python manage.py seed_companies
 python manage.py seed_dealers
+# Optional staging-only data:
+SEED_DEMO_DATA=true DEMO_DATA_PASSWORD='change-this-staging-password' python manage.py seed_demo_data
 ```
 
 Set the build command to:

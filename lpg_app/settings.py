@@ -213,6 +213,7 @@ LOGGING = {
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Enables compressed static files and caching
 STORAGES = {

@@ -10,6 +10,7 @@ from brands.models import LPGBrand
 from dealers.models import DealerBrandAuthorization, DealerCoverageArea, DealerProfile
 from inventory.models import CylinderFill
 from inventory.services import receive_cylinder_batch
+from locations.models import LocationAlias, LocationUnit
 
 from .models import Allocation, AllocationRun
 from .services import execute_allocation_run, queue_allocation_run
@@ -135,6 +136,56 @@ class AllocationTaskTests(TestCase):
         execute_allocation_run(self.create_run().pk)
 
         self.assertFalse(Allocation.objects.filter(application=application).exists())
+
+    def test_stewarded_tole_alias_is_used_for_allocation_matching(self):
+        municipality = LocationUnit.objects.create(
+            code="NP-KTM-KMC",
+            level=LocationUnit.Level.MUNICIPALITY,
+            name_en="Kathmandu Metropolitan City",
+            normalized_name="kathmandu",
+            is_kathmandu_valley=True,
+        )
+        ward = LocationUnit.objects.create(
+            code="NP-KTM-KMC-W10",
+            level=LocationUnit.Level.WARD,
+            name_en="Ward 10",
+            normalized_name="ward 10",
+            parent=municipality,
+            is_kathmandu_valley=True,
+        )
+        tole = LocationUnit.objects.create(
+            code="NP-KTM-KMC-W10-BANESHWOR",
+            level=LocationUnit.Level.TOLE,
+            name_en="Baneshwor",
+            normalized_name="baneshwor",
+            parent=ward,
+            is_kathmandu_valley=True,
+        )
+        LocationAlias.objects.create(location=tole, alias="Naya Baneshwor")
+        DealerCoverageArea.objects.create(
+            dealer=self.dealer,
+            coverage_level=DealerCoverageArea.CoverageLevel.TOLE,
+            municipality="Kathmandu",
+            ward="10",
+            tole="Baneshwor",
+            location_unit=tole,
+            created_by=self.user,
+        )
+        application = self.create_application(
+            "alias-match",
+            LPGApplication.Category.HOUSEHOLD,
+            "27.687000",
+            "85.342100",
+        )
+        application.household.tole = "Naya Baneshwor"
+        application.household.save(update_fields=["tole", "updated_at"])
+
+        allocation_run = self.create_run(quantity=1)
+        execute_allocation_run(allocation_run.pk)
+
+        allocation = Allocation.objects.get(application=application)
+        self.assertEqual(allocation.location_match_level, DealerCoverageArea.CoverageLevel.TOLE)
+        self.assertGreaterEqual(allocation.location_match_score, 0.88)
 
     def test_task_is_idempotent_after_completion(self):
         application = self.create_application(

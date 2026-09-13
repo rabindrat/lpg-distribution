@@ -2,14 +2,22 @@ from types import SimpleNamespace
 import json
 from tempfile import NamedTemporaryFile
 
+from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import SimpleTestCase
 from django.test import TestCase
 
+from allocations.models import Allocation, AllocationRun
+from applicants.models import Complaint, LPGApplication
+from dealers.models import DealerProfile
+from inventory.models import CylinderFill
 from dealers.models import DealerCoverageArea
 
 from .models import LocationUnit
 from .services import coverage_match, normalize_location_text
+
+
+User = get_user_model()
 
 
 class LocationMatchingTests(SimpleTestCase):
@@ -105,3 +113,23 @@ class LocationCatalogImportTests(TestCase):
         tole = LocationUnit.objects.get(code="NP-KTM-KMC-W10-BANESHWOR")
         self.assertEqual(tole.parent.code, "NP-KTM-KMC-W10")
         self.assertEqual(tole.alias_records.get().source, "approved-test")
+
+
+class DemoSeedCommandTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_brands", verbosity=0)
+        call_command("seed_companies", verbosity=0)
+        call_command("seed_dealers", verbosity=0)
+
+    def test_demo_seed_is_idempotent_and_covers_workflow_states(self):
+        call_command("seed_demo_data", password="test-password", verbosity=0)
+        call_command("seed_demo_data", password="test-password", verbosity=0)
+
+        self.assertEqual(User.objects.filter(username__startswith="demo-").count(), 14)
+        self.assertEqual(DealerProfile.objects.filter(user__username__startswith="demo-dealer-").count(), 4)
+        self.assertEqual(LPGApplication.objects.filter(applicant__username__startswith="demo-applicant-").count(), 9)
+        self.assertEqual(CylinderFill.objects.filter(fill_reference__startswith="DEMO-").count(), 9)
+        self.assertEqual(Allocation.objects.filter(application__applicant__username__startswith="demo-applicant-").count(), 4)
+        self.assertEqual(AllocationRun.objects.filter(created_by__username="demo-dealer-active").count(), 4)
+        self.assertEqual(Complaint.objects.filter(applicant__username="demo-applicant-delivered").count(), 1)

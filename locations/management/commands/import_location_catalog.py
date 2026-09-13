@@ -33,7 +33,7 @@ class Command(BaseCommand):
         except json.JSONDecodeError as error:
             raise CommandError(f"Catalog is not valid JSON: {error}") from error
 
-        rows = payload.get("locations", payload) if isinstance(payload, dict) else payload
+        rows = self._rows_from_payload(payload)
         if not isinstance(rows, list):
             raise CommandError("Catalog must be a list or an object with a 'locations' list.")
         rows = [self._feature_to_row(row) for row in rows]
@@ -82,13 +82,25 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Imported {len(rows)} location rows."))
 
     @staticmethod
+    def _rows_from_payload(payload):
+        if not isinstance(payload, dict):
+            return payload
+        if isinstance(payload.get("locations"), list):
+            return payload["locations"]
+        if payload.get("type") == "FeatureCollection":
+            return payload.get("features", [])
+        return payload
+
+    @staticmethod
     def _feature_to_row(row):
         if "properties" not in row:
             return row
         properties = row["properties"]
         return {
             **properties,
-            "code": properties.get("code") or properties.get("locallevel_fullcode"),
+            "code": properties.get("code")
+            or properties.get("locallevel_fullcode")
+            or properties.get("id"),
             "name_en": properties.get("name_en") or properties.get("gapa_napa"),
             "name_ne": properties.get("name_ne") or properties.get("gapa_napa_np", ""),
         }

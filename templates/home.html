@@ -1,16 +1,45 @@
 {% extends "base.html" %}
-{% block title %}Apply for LPG{% endblock %}
+{% load static %}
+{% block title %}Nepal Gas Distribution — LPG made clear{% endblock %}
 {% block content %}
-<div class="row justify-content-center py-5">
-  <div class="col-lg-8 text-center">
-    <span class="badge text-bg-primary mb-3">Applicant portal</span>
-    <h1 class="display-5 fw-semibold">Apply for LPG delivery from one place.</h1>
-    <p class="lead text-secondary mt-3">Register your household, submit an application, and track its status online.</p>
-    <div class="d-flex justify-content-center gap-2 mt-4">
-      <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Create applicant account</a>
-      <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg">Log in</a>
+<div class="home-page">
+  <section class="hero container">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="eyebrow-dot"></span><span data-en="Kathmandu Valley pilot" data-ne="काठमाडौं उपत्यका पाइलट">Kathmandu Valley pilot</span></div>
+      <h1><span data-en="Gas access, made a little clearer." data-ne="ग्यास पाउन अब अलि सजिलो।">Gas access, made a little clearer.</span><em data-en="ग्यास लिन अब सजिलो छ।" data-ne="Gas access made easier.">ग्यास लिन अब सजिलो छ।</em></h1>
+      <p class="hero-lede" data-en="Register your household, apply for LPG, and follow your request in one place — designed around how Nepal gets gas." data-ne="आफ्नो घरपरिवार दर्ता गर्नुहोस्, एलपीजीका लागि आवेदन दिनुहोस् र आफ्नो अनुरोधको अवस्था एउटै ठाउँबाट हेर्नुहोस् — नेपालको ग्यास वितरणलाई ध्यानमा राखेर बनाइएको।">Register your household, apply for LPG, and follow your request in one place — designed around how Nepal gets gas.</p>
+      <div class="hero-actions">
+        <a href="{% url 'register' %}" class="button button--primary"><span data-en="Start an application" data-ne="आवेदन सुरु गर्नुहोस्">Start an application</span><span aria-hidden="true">↗</span></a>
+        <a href="{% url 'login' %}" class="button button--text"><span data-en="I already have an account" data-ne="मेरो खाता छ">I already have an account</span><span aria-hidden="true">→</span></a>
+      </div>
+      <p class="hero-note"><span class="note-mark">✓</span><span data-en="One household · one monthly application · clearer updates" data-ne="एउटा घरपरिवार · मासिक एक आवेदन · स्पष्ट जानकारी">One household · one monthly application · clearer updates</span></p>
     </div>
-    <p class="small text-secondary mt-4 mb-0">Are you a dealer? <a href="{% url 'dealer-register' %}">Register your shop</a>.</p>
-  </div>
+    <div class="hero-visual" aria-label="Nepal Gas application overview">
+      <div class="hero-card hero-card--main">
+        <div class="hero-card__top"><span class="card-kicker" data-en="Your next step" data-ne="तपाईंको अर्को चरण">Your next step</span><span class="card-index">01</span></div>
+        <img class="hero-cylinder" src="{% static 'img/cylinder.svg' %}" alt="">
+        <h2 data-en="Set up your household." data-ne="आफ्नो घरपरिवारको विवरण राख्नुहोस्।">Set up your household.</h2>
+        <p data-en="A few local details help route supply fairly." data-ne="केही स्थानीय विवरणले ग्यास वितरण सही ठाउँमा पुर्‍याउन मद्दत गर्छ।">A few local details help route supply fairly.</p>
+        <div class="mini-progress"><span class="mini-progress__fill"></span></div>
+        <div class="mini-progress__label"><span data-en="1 of 2 steps" data-ne="२ मध्ये १ चरण">1 of 2 steps</span><span>50%</span></div>
+      </div>
+      <div class="hero-card hero-card--float hero-card--yellow"><span class="float-icon" aria-hidden="true">↗</span><span><strong data-en="Fair allocation" data-ne="निष्पक्ष वितरण">Fair allocation</strong><small data-en="Built for local delivery" data-ne="स्थानीय वितरणका लागि">Built for local delivery</small></span></div>
+      <div class="hero-card hero-card--float hero-card--white"><span class="status-dot"></span><strong data-en="Updates in one place" data-ne="एकै ठाउँमा जानकारी">Updates in one place</strong></div>
+    </div>
+  </section>
+
+  <section class="value-strip container" aria-label="What Nepal Gas helps with">
+    <div class="value-strip__intro"><span class="section-label" data-en="A clearer process" data-ne="स्पष्ट प्रक्रिया">A clearer process</span><h2 data-en="From household to delivery." data-ne="घरपरिवारदेखि वितरणसम्म।">From household to delivery.</h2></div>
+    <div class="value-item"><span class="value-number">01</span><div><strong data-en="Tell us where you live" data-ne="तपाईं कहाँ बस्नुहुन्छ भन्नुहोस्">Tell us where you live</strong><p data-en="Add your municipality, ward, and local address." data-ne="नगरपालिका, वडा र स्थानीय ठेगाना राख्नुहोस्।">Add your municipality, ward, and local address.</p></div></div>
+    <div class="value-item"><span class="value-number">02</span><div><strong data-en="Choose your preference" data-ne="आफ्नो रोजाइ छान्नुहोस्">Choose your preference</strong><p data-en="Apply with a preferred brand or any available supply." data-ne="रोजेको ब्रान्ड वा उपलब्ध जुनसुकै ग्यासका लागि आवेदन दिनुहोस्।">Apply with a preferred brand or any available supply.</p></div></div>
+    <div class="value-item"><span class="value-number">03</span><div><span class="value-check">✓</span><div><strong data-en="Follow your status" data-ne="आवेदनको अवस्था हेर्नुहोस्">Follow your status</strong><p data-en="See your application and next steps from your dashboard." data-ne="ड्यासबोर्डबाट आवेदन र अर्को चरण हेर्नुहोस्।">See your application and next steps from your dashboard.</p></div></div></div>
+  </section>
+
+  <section class="home-cta container">
+    <div><span class="section-label section-label--light" data-en="For households in Nepal" data-ne="नेपालका घरपरिवारका लागि">For households in Nepal</span><h2 data-en="Ready when you are." data-ne="तपाईं तयार हुँदा हामी पनि तयार छौं।">Ready when you are.</h2></div>
+    <div class="home-cta__right"><p data-en="Create your account once. Keep your household details and LPG applications together." data-ne="एकपटक खाता खोल्नुहोस्। आफ्नो घरपरिवारको विवरण र एलपीजी आवेदन एउटै ठाउँमा राख्नुहोस्।">Create your account once. Keep your household details and LPG applications together.</p><a href="{% url 'register' %}" class="button button--cream"><span data-en="Create your account" data-ne="खाता खोल्नुहोस्">Create your account</span><span aria-hidden="true">↗</span></a></div>
+  </section>
+
+  <footer class="home-footer container"><span>नेपाल ग्यास वितरण / Nepal Gas Distribution</span><span data-en="A more transparent LPG distribution journey." data-ne="एलपीजी वितरणको अझ स्पष्ट यात्रा।">A more transparent LPG distribution journey.</span><a href="{% url 'dealer-register' %}"><span data-en="Are you a dealer? Register here" data-ne="डिलर हुनुहुन्छ? यहाँ दर्ता गर्नुहोस्">Are you a dealer? Register here</span> ↗</a></footer>
 </div>
 {% endblock %}

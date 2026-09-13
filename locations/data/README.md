@@ -1,6 +1,6 @@
 # Location catalog import format
 
-`import_location_catalog` accepts a JSON list or an object containing a `locations` list. It is upsert-only: existing rows and user-entered address text are not deleted.
+`import_location_catalog` accepts a JSON list, an object containing a `locations` list, or a standard GeoJSON `FeatureCollection`. It is upsert-only: existing rows and user-entered address text are not deleted. For GeoJSON, put the import fields in each feature's `properties`; geometry is preserved in the source file but is not stored by this operational catalog yet.
 
 Example:
 
