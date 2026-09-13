@@ -21,6 +21,9 @@ Admin:
 python manage.py createsuperuser
 ```
 
+For a field-by-field explanation of the Django Admin records and common
+workflows, see [docs/admin-portal-guide.md](docs/admin-portal-guide.md).
+
 ## Applicant flow
 
 The first front-end slice is available at:

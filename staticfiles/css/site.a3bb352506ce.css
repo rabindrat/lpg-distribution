@@ -92,7 +92,6 @@ a { color: inherit; }
 .site-main .btn-primary { --bs-btn-bg: var(--red); --bs-btn-border-color: var(--red); --bs-btn-hover-bg: var(--red-dark); --bs-btn-hover-border-color: var(--red-dark); }
 .site-main .text-primary { color: var(--red) !important; }
 .site-main .form-control, .site-main .form-select { border-color: var(--line); border-radius: 10px; padding: .7rem .85rem; }
-.dashboard-shell { padding-top: 46px; padding-bottom: 58px; }
 .install-prompt { position: fixed; z-index: 10; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 16px; width: min(430px, calc(100% - 30px)); padding: 15px 16px 15px 18px; border: 1px solid rgba(165,46,52,.16); border-radius: 18px; background: rgba(255,250,240,.97); box-shadow: 0 18px 45px rgba(73,46,29,.18); backdrop-filter: blur(14px); }
 .install-prompt[hidden] { display: none; }
 .install-prompt strong, .install-prompt p { display: block; }
@@ -127,7 +126,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .brand-wordmark { max-width: 145px; font-size: 13px; }
   .brand-wordmark small { font-size: 9px; }
   .hero { padding-top: 44px; padding-bottom: 58px; }
-  .dashboard-shell { width: calc(100% - 30px); padding-top: 28px; padding-bottom: 40px; }
   .hero h1 { font-size: clamp(42px, 14vw, 62px); }
   .hero-lede { font-size: 16px; }
   .hero-visual { min-height: 370px; }

@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 from django.http import HttpResponse
+from django.views.generic import TemplateView
 
 
 def health(request):
@@ -32,6 +33,24 @@ urlpatterns = [
     path("dealer/", include("dealers.urls")),
     path("company/", include("companies.urls")),
     path("health/", health),
+    # The worker must be served from the site root so it can control the
+    # public pages and authenticated dashboard routes.
+    path(
+        "service-worker.js",
+        TemplateView.as_view(
+            template_name="service-worker.js",
+            content_type="application/javascript",
+        ),
+        name="service-worker",
+    ),
+    path(
+        "manifest.webmanifest",
+        TemplateView.as_view(
+            template_name="manifest.webmanifest",
+            content_type="application/manifest+json",
+        ),
+        name="manifest",
+    ),
 ]
 
 if settings.DEBUG:

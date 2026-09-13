@@ -15,6 +15,9 @@ html { background: var(--paper); }
 body.site-body { background: var(--paper); color: var(--ink); font-family: "DM Sans", "Noto Sans Devanagari", sans-serif; font-size: 16px; line-height: 1.55; }
 body.is-nepali { font-family: "Noto Sans Devanagari", "DM Sans", sans-serif; }
 a { color: inherit; }
+.skip-link { position: fixed; z-index: 100; top: 10px; left: 10px; padding: 9px 13px; border-radius: 10px; background: var(--ink); color: #fff; transform: translateY(-180%); transition: transform .2s ease; }
+.skip-link:focus { transform: translateY(0); color: #fff; }
+.site-body::before { content: ""; position: fixed; z-index: 20; inset: 0 0 auto; height: env(safe-area-inset-top); background: var(--paper); pointer-events: none; }
 .site-nav { padding: 23px 0; }
 .site-nav__inner, .site-main > .container, .home-page > .container { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
 .site-nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
@@ -89,6 +92,20 @@ a { color: inherit; }
 .site-main .btn-primary { --bs-btn-bg: var(--red); --bs-btn-border-color: var(--red); --bs-btn-hover-bg: var(--red-dark); --bs-btn-hover-border-color: var(--red-dark); }
 .site-main .text-primary { color: var(--red) !important; }
 .site-main .form-control, .site-main .form-select { border-color: var(--line); border-radius: 10px; padding: .7rem .85rem; }
+.dashboard-shell { padding-top: 46px; padding-bottom: 58px; }
+.install-prompt { position: fixed; z-index: 10; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 16px; width: min(430px, calc(100% - 30px)); padding: 15px 16px 15px 18px; border: 1px solid rgba(165,46,52,.16); border-radius: 18px; background: rgba(255,250,240,.97); box-shadow: 0 18px 45px rgba(73,46,29,.18); backdrop-filter: blur(14px); }
+.install-prompt[hidden] { display: none; }
+.install-prompt strong, .install-prompt p { display: block; }
+.install-prompt strong { font-size: 14px; }
+.install-prompt p { margin: 2px 0 0; color: var(--muted); font-size: 12px; line-height: 1.35; }
+.install-prompt__button { flex: 0 0 auto; padding: 8px 13px; border: 0; border-radius: 999px; background: var(--red); color: #fff; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.install-prompt__button:hover { background: var(--red-dark); }
+.install-prompt__close { align-self: flex-start; padding: 0; border: 0; background: transparent; color: var(--muted); font-size: 21px; line-height: 1; cursor: pointer; }
+.offline-page { width: min(calc(100% - 30px), 680px); margin: 0 auto; padding-top: clamp(76px, 12vw, 150px); padding-bottom: 150px; }
+.offline-page h1 { max-width: 600px; margin: 18px 0 12px; font-size: clamp(44px, 7vw, 76px); letter-spacing: -.075em; line-height: .98; }
+.offline-page p { max-width: 480px; margin: 0 0 28px; color: var(--muted); font-size: 17px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid rgba(244,211,94,.95); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
 @media (max-width: 900px) {
   .site-nav__right { gap: 14px; }
   .nav-dealer-link { display: none; }
@@ -110,6 +127,7 @@ a { color: inherit; }
   .brand-wordmark { max-width: 145px; font-size: 13px; }
   .brand-wordmark small { font-size: 9px; }
   .hero { padding-top: 44px; padding-bottom: 58px; }
+  .dashboard-shell { width: calc(100% - 30px); padding-top: 28px; padding-bottom: 40px; }
   .hero h1 { font-size: clamp(42px, 14vw, 62px); }
   .hero-lede { font-size: 16px; }
   .hero-visual { min-height: 370px; }
@@ -125,4 +143,7 @@ a { color: inherit; }
   .home-cta { margin-top: 25px; padding: 28px 25px; }
   .home-cta__right { align-items: flex-start; flex-direction: column; gap: 18px; }
   .home-footer { align-items: flex-start; flex-direction: column; gap: 8px; }
+  .install-prompt { right: 15px; bottom: calc(15px + env(safe-area-inset-bottom)); align-items: flex-start; gap: 10px; padding-left: 15px; }
+  .install-prompt > div { flex: 1 1 auto; }
+  .install-prompt__button { margin-top: 2px; }
 }

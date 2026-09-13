@@ -24,6 +24,11 @@ def home(request):
     return render(request, "home.html")
 
 
+def offline(request):
+    """Small cached fallback page used when a navigation loses connectivity."""
+    return render(request, "offline.html")
+
+
 def user_login(request):
     if request.user.is_authenticated:
         return home(request)

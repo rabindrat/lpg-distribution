@@ -3,11 +3,17 @@
 <html lang="en" data-language="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#a52e34">
   <meta name="description" content="Nepal Gas Distribution — a clearer way to apply for LPG distribution in Nepal.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Nepal Gas">
   <title>{% block title %}Nepal Gas Distribution{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="{% static 'img/cylinder.svg' %}">
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/icon-192.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -16,6 +22,7 @@
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
 </head>
 <body class="site-body">
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <nav class="site-nav">
     <div class="site-nav__inner">
       <a class="brand-lockup" href="{% url 'home' %}" aria-label="Nepal Gas Distribution home">
@@ -41,12 +48,22 @@
       </div>
     </div>
   </nav>
-  <main class="site-main">
+  <main class="site-main" id="main-content">
     {% for message in messages %}
       <div class="container"><div class="alert alert-{{ message.tags|default:'info' }} site-alert" role="alert">{{ message }}</div></div>
     {% endfor %}
     {% block content %}{% endblock %}
   </main>
+  <aside class="install-prompt" data-install-prompt hidden aria-label="Install Nepal Gas Distribution">
+    <div>
+      <strong data-en="Take Nepal Gas with you" data-ne="नेपाल ग्यास साथमा राख्नुहोस्">Take Nepal Gas with you</strong>
+      <p data-en="Install the app for a faster, app-like experience." data-ne="छिटो र एपजस्तै अनुभवका लागि एप इन्स्टल गर्नुहोस्।">Install the app for a faster, app-like experience.</p>
+    </div>
+    <button class="install-prompt__button" type="button" data-install-action>
+      <span data-en="Install" data-ne="इन्स्टल गर्नुहोस्">Install</span>
+    </button>
+    <button class="install-prompt__close" type="button" data-install-dismiss aria-label="Dismiss install prompt">×</button>
+  </aside>
   <script>
     (() => {
       const root = document.documentElement;
@@ -63,6 +80,39 @@
       buttons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.languageButton)));
       setLanguage(window.localStorage.getItem('nepal-gas-language') || 'en');
     })();
+
+    (() => {
+      const prompt = document.querySelector('[data-install-prompt]');
+      const installAction = document.querySelector('[data-install-action]');
+      const dismissAction = document.querySelector('[data-install-dismiss]');
+      let deferredPrompt;
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) return;
+
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        if (window.localStorage.getItem('nepal-gas-install-dismissed') !== '1') prompt.hidden = false;
+      });
+      installAction?.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        prompt.hidden = true;
+      });
+      dismissAction?.addEventListener('click', () => {
+        prompt.hidden = true;
+        window.localStorage.setItem('nepal-gas-install-dismissed', '1');
+      });
+    })();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('{% url "service-worker" %}', {scope: '/'}).catch(() => {
+          // The site remains fully usable when a browser does not support PWA workers.
+        });
+      });
+    }
   </script>
 </body>
 </html>
