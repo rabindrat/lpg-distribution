@@ -1,7 +1,7 @@
 {
-  "name": "Nepal Gas Distribution",
-  "short_name": "Nepal Gas",
-  "description": "Apply for LPG distribution and follow your household's request in one place.",
+  "name": "Kathmandu LPG distribution",
+  "short_name": "KTM LPG",
+  "description": "Kathmandu LPG distribution — apply for LPG and follow your household's request in one place.",
   "lang": "en-NP",
   "dir": "ltr",
   "start_url": "/",
