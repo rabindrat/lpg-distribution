@@ -6,8 +6,9 @@ from django.core.validators import RegexValidator
 
 from brands.models import LPGBrand
 from companies.roles import APPLICANT_GROUP
+from locations.models import LocationUnit
 
-from .models import ApplicantProfile, Household, LPGApplication
+from .models import ApplicantProfile, Complaint, Household, LPGApplication
 
 User = get_user_model()
 
@@ -89,10 +90,20 @@ class HouseholdForm(forms.ModelForm):
             "flat_unit",
             "family_size",
             "members",
+            "location_unit",
         ]
         widgets = {
             "members": forms.Textarea(attrs={"rows": 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["location_unit"].required = False
+        self.fields["location_unit"].label = "Canonical location (optional)"
+        self.fields["location_unit"].queryset = LocationUnit.objects.filter(
+            is_active=True,
+            is_kathmandu_valley=True,
+        ).order_by("level", "name_en")
 
 
 class LPGApplicationForm(forms.ModelForm):
@@ -141,3 +152,16 @@ class LPGApplicationForm(forms.ModelForm):
                     "This household already has an application for the current month."
                 )
         return cleaned
+
+
+class ComplaintForm(forms.ModelForm):
+    class Meta:
+        model = Complaint
+        fields = ["confirmation_number", "complaint"]
+        labels = {
+            "confirmation_number": "Confirmation number (optional)",
+            "complaint": "Complaint",
+        }
+        widgets = {
+            "complaint": forms.Textarea(attrs={"rows": 5}),
+        }

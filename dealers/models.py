@@ -226,6 +226,10 @@ class DealerCoverageArea(models.Model):
             raise ValidationError({"tole": "Tole coverage requires a tole name."})
         if self.coverage_level == self.CoverageLevel.WARD and self.tole:
             raise ValidationError({"tole": "Ward coverage cannot include a tole name."})
+        if self.location_unit and self.location_unit.level != self.coverage_level:
+            raise ValidationError(
+                {"location_unit": "Canonical location level must match coverage level."}
+            )
 
     def __str__(self):
         label = self.tole if self.coverage_level == self.CoverageLevel.TOLE else f"Ward {self.ward}"

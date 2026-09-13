@@ -173,3 +173,20 @@ class LPGApplication(models.Model):
 
     def __str__(self):
         return self.reference
+
+
+class Complaint(models.Model):
+    applicant = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="complaints",
+    )
+    confirmation_number = models.CharField(max_length=100, blank=True)
+    complaint = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Complaint #{self.pk}"

@@ -44,3 +44,37 @@ class LocationUnit(models.Model):
 
     def __str__(self):
         return self.name_en
+
+
+class LocationAlias(models.Model):
+    """A stewarded spelling or local name for a canonical location."""
+
+    location = models.ForeignKey(
+        LocationUnit,
+        on_delete=models.PROTECT,
+        related_name="alias_records",
+    )
+    alias = models.CharField(max_length=160)
+    normalized_alias = models.CharField(max_length=160, db_index=True)
+    source = models.CharField(max_length=120, default="NOC / dealer stewardship")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["normalized_alias", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["location", "normalized_alias"],
+                name="one_alias_per_location",
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        from .services import normalize_location_text
+
+        self.normalized_alias = normalize_location_text(self.alias)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.alias} → {self.location.name_en}"

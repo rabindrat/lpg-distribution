@@ -121,7 +121,7 @@ def execute_allocation_run(run_id):
         DealerCoverageArea.objects.filter(
             dealer=run.dealer,
             is_active=True,
-        )
+        ).select_related("location_unit").prefetch_related("location_unit__alias_records")
     )
     ranked = [
         (

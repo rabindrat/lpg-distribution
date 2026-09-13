@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render
 
 from companies.models import CompanyMembership
 
-from .forms import ApplicantRegistrationForm, HouseholdForm, LPGApplicationForm
+from .forms import ApplicantRegistrationForm, ComplaintForm, HouseholdForm, LPGApplicationForm
 from .models import ApplicantProfile, Household, LPGApplication
 
 
@@ -112,3 +112,15 @@ def dashboard(request):
         "applicants/dashboard.html",
         {"profile": profile, "household": household_record, "applications": applications},
     )
+
+
+@login_required
+def complaint(request):
+    form = ComplaintForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        complaint_record = form.save(commit=False)
+        complaint_record.applicant = request.user
+        complaint_record.save()
+        messages.success(request, "Your complaint has been submitted.")
+        return redirect("dashboard")
+    return render(request, "applicants/complaint_form.html", {"form": form})

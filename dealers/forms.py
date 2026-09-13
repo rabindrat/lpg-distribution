@@ -8,6 +8,7 @@ import re
 from allocations.models import AllocationRun
 from brands.models import LPGBrand
 from companies.roles import DEALER_GROUP
+from locations.models import LocationUnit
 
 from .models import DealerBrandAuthorization, DealerCoverageArea, DealerProfile, DealerRegistry
 
@@ -260,7 +261,7 @@ class CylinderReceiptForm(forms.Form):
 class DealerCoverageAreaForm(forms.ModelForm):
     class Meta:
         model = DealerCoverageArea
-        fields = ["coverage_level", "municipality", "ward", "tole"]
+        fields = ["coverage_level", "municipality", "ward", "tole", "location_unit"]
         labels = {
             "coverage_level": "Coverage precision",
             "municipality": "Municipality (optional)",
@@ -282,4 +283,20 @@ class DealerCoverageAreaForm(forms.ModelForm):
             self.add_error("tole", "Tole coverage requires a tole name.")
         if level == DealerCoverageArea.CoverageLevel.WARD and tole:
             self.add_error("tole", "Leave tole blank when declaring ward coverage.")
+        location_unit = cleaned.get("location_unit")
+        if location_unit and location_unit.level != level:
+            self.add_error(
+                "location_unit",
+                "The canonical location level must match the coverage precision.",
+            )
         return cleaned
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["location_unit"].required = False
+        self.fields["location_unit"].label = "Canonical location (optional)"
+        self.fields["location_unit"].queryset = LocationUnit.objects.filter(
+            is_active=True,
+            is_kathmandu_valley=True,
+            level__in=[LocationUnit.Level.TOLE, LocationUnit.Level.WARD],
+        ).order_by("level", "name_en")

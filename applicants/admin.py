@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ApplicantProfile, Household, LPGApplication
+from .models import ApplicantProfile, Complaint, Household, LPGApplication
 
 
 @admin.register(ApplicantProfile)
@@ -22,3 +22,10 @@ class LPGApplicationAdmin(admin.ModelAdmin):
     list_filter = ("status", "priority", "category", "entitlement_month")
     search_fields = ("reference", "applicant__username", "household__house_number")
     readonly_fields = ("reference", "priority", "due_date", "entitlement_month", "created_at", "updated_at")
+
+
+@admin.register(Complaint)
+class ComplaintAdmin(admin.ModelAdmin):
+    list_display = ("id", "applicant", "confirmation_number", "created_at")
+    search_fields = ("confirmation_number", "complaint", "applicant__username")
+    readonly_fields = ("created_at",)

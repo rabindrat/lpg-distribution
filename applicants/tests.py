@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import ApplicantProfile, Household, LPGApplication
+from .models import ApplicantProfile, Complaint, Household, LPGApplication
 
 User = get_user_model()
 
@@ -39,6 +39,29 @@ class ApplicantFlowTests(TestCase):
             {"username": "+9779812345678", "password": "password"},
         )
         self.assertRedirects(response, reverse("dashboard"))
+
+    def test_logout_posts_and_redirects_to_home(self):
+        response = self.client.post(reverse("logout"))
+
+        self.assertRedirects(response, reverse("home"))
+        self.assertFalse(response.wsgi_request.user.is_authenticated)
+
+    def test_complaint_can_be_submitted_without_confirmation_number(self):
+        response = self.client.post(
+            reverse("complaint"),
+            {"complaint": "My delivery has not arrived yet."},
+        )
+
+        self.assertRedirects(response, reverse("dashboard"))
+        complaint = Complaint.objects.get(applicant=self.user)
+        self.assertEqual(complaint.confirmation_number, "")
+        self.assertEqual(complaint.complaint, "My delivery has not arrived yet.")
+
+    def test_dashboard_links_to_complaint_form(self):
+        response = self.client.get(reverse("dashboard"))
+
+        self.assertContains(response, reverse("complaint"))
+        self.assertContains(response, "Submit a complaint")
 
     def setUp(self):
         self.user = User.objects.create_user(username="+9779812345678", password="password")
