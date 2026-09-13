@@ -61,7 +61,13 @@ class ApplicantFlowTests(TestCase):
         response = self.client.get(reverse("dashboard"))
 
         self.assertContains(response, reverse("complaint"))
-        self.assertContains(response, "Submit a complaint")
+        self.assertContains(response, "Complaints")
+
+    def test_complaint_page_hides_footer_complaint_button(self):
+        response = self.client.get(reverse("complaint"))
+
+        self.assertNotContains(response, 'class="complaint-button"')
+        self.assertContains(response, "Language selector")
 
     def setUp(self):
         self.user = User.objects.create_user(username="+9779812345678", password="password")

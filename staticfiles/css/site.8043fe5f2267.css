@@ -95,7 +95,6 @@ a { color: inherit; }
 .home-footer > span:first-child { color: var(--ink); font-weight: 700; }
 .home-footer a { color: var(--red); text-decoration: none; }
 .site-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(calc(100% - 30px), 960px); margin: 0 auto; padding-top: 10px; padding-bottom: 28px; white-space: nowrap; }
-.site-footer--language-only { justify-content: flex-end; }
 .complaint-button { display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none; }
 .complaint-button:hover { border-color: rgba(165,46,52,.28); background: var(--cream); color: var(--red); }
 .complaint-button__icon { width: 18px; height: 18px; }
@@ -107,7 +106,6 @@ a { color: inherit; }
 .auth-card { margin: 0 auto; }
 .auth-card--login { width: min(100%, 480px); }
 .auth-card--signup { width: min(100%, 560px); }
-.auth-card--complaint { width: min(100%, 760px); }
 .dashboard-shell { padding-top: 46px; padding-bottom: 58px; }
 .install-prompt { position: fixed; z-index: 10; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 16px; width: min(430px, calc(100% - 30px)); padding: 15px 16px 15px 18px; border: 1px solid rgba(165,46,52,.16); border-radius: 18px; background: rgba(255,250,240,.97); box-shadow: 0 18px 45px rgba(73,46,29,.18); backdrop-filter: blur(14px); }
 .install-prompt[hidden] { display: none; }
