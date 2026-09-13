@@ -11,6 +11,7 @@ class AllocationRunAdmin(admin.ModelAdmin):
         "brand",
         "requested_quantity",
         "candidate_count",
+        "stock_count",
         "selected_count",
         "status",
         "created_at",
@@ -19,6 +20,7 @@ class AllocationRunAdmin(admin.ModelAdmin):
     search_fields = ("dealer__dealer_name", "brand__name_en")
     readonly_fields = (
         "candidate_count",
+        "stock_count",
         "selected_count",
         "started_at",
         "completed_at",

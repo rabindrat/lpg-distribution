@@ -8,6 +8,8 @@ from django.test import TestCase
 from applicants.models import ApplicantProfile, Household, LPGApplication
 from brands.models import LPGBrand
 from dealers.models import DealerBrandAuthorization, DealerProfile
+from inventory.models import CylinderFill
+from inventory.services import receive_cylinder_batch
 
 from .models import Allocation, AllocationRun
 from .services import execute_allocation_run, queue_allocation_run
@@ -72,6 +74,12 @@ class AllocationTaskTests(TestCase):
         )
 
     def create_run(self, quantity=10):
+        receive_cylinder_batch(
+            dealer=self.dealer,
+            brand=self.brand,
+            quantity=quantity,
+            created_by=self.user,
+        )
         return AllocationRun.objects.create(
             dealer=self.dealer,
             brand=self.brand,
@@ -99,6 +107,13 @@ class AllocationTaskTests(TestCase):
             [p1_near.pk, p1_far.pk],
         )
         self.assertEqual(p2_close.status, LPGApplication.Status.SUBMITTED)
+        self.assertEqual(
+            CylinderFill.objects.filter(
+                dealer=self.dealer,
+                status=CylinderFill.Status.RESERVED,
+            ).count(),
+            2,
+        )
 
     def test_specific_brand_application_is_excluded(self):
         other_brand = LPGBrand.objects.get(brand_id=30)

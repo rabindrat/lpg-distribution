@@ -3,6 +3,10 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
+from unittest.mock import patch
+
+from allocations.models import AllocationRun
+from inventory.models import CylinderFill
 
 from .models import DealerBrandAuthorization, DealerProfile, DealerRegistry
 
@@ -121,3 +125,63 @@ class DealerFlowTests(TestCase):
             DealerRegistry.objects.get(registry_id=1).status,
             DealerRegistry.Status.CLAIMED,
         )
+
+    def active_dealer(self):
+        user = User.objects.create_user(username="active-dealer", password="password")
+        dealer = DealerProfile.objects.create(
+            user=user,
+            dealer_name="Active Dealer",
+            proprietor_name="Active Owner",
+            mobile_number="1234567891",
+            email="active@example.com",
+            municipality="Kathmandu",
+            ward="1",
+            tole="Tole",
+            address="Address",
+            house_plot_number="1",
+            authorization_license="LIC-ACTIVE",
+            gps_latitude="27.700000",
+            gps_longitude="85.300000",
+            shop_photo="dealers/shop-photos/shop.jpg",
+            status=DealerProfile.Status.ACTIVE,
+        )
+        DealerBrandAuthorization.objects.create(
+            dealer=dealer,
+            brand_id=29,
+            status=DealerBrandAuthorization.Status.ACTIVE,
+        )
+        return dealer
+
+    def test_active_dealer_can_record_received_cylinders(self):
+        dealer = self.active_dealer()
+        self.client.force_login(dealer.user)
+        response = self.client.post(
+            reverse("dealer-receive-cylinders"),
+            {"brand": 29, "quantity": 2, "source_reference": "DISPATCH-1"},
+        )
+
+        self.assertRedirects(response, reverse("dealer-dashboard"))
+        self.assertEqual(
+            CylinderFill.objects.filter(
+                dealer=dealer,
+                status=CylinderFill.Status.IN_STOCK,
+            ).count(),
+            2,
+        )
+
+    def test_active_dealer_can_queue_an_allocation_run(self):
+        dealer = self.active_dealer()
+        self.client.force_login(dealer.user)
+        queued_run = AllocationRun.objects.create(
+            dealer=dealer,
+            brand_id=29,
+            requested_quantity=1,
+            created_by=dealer.user,
+        )
+        with patch("dealers.views.queue_allocation_run", return_value=queued_run):
+            response = self.client.post(
+                reverse("dealer-create-allocation"),
+                {"brand": 29, "requested_quantity": 1},
+            )
+
+        self.assertRedirects(response, reverse("dealer-dashboard"))

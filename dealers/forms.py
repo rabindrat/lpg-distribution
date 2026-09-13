@@ -5,6 +5,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.validators import RegexValidator
 import re
 
+from allocations.models import AllocationRun
 from brands.models import LPGBrand
 from companies.roles import DEALER_GROUP
 
@@ -202,3 +203,55 @@ class DealerRegistrationForm(forms.Form):
                 ]
             )
         return dealer
+
+
+class DealerAllocationRunForm(forms.ModelForm):
+    class Meta:
+        model = AllocationRun
+        fields = ["brand", "requested_quantity"]
+        labels = {
+            "brand": "Brand to allocate",
+            "requested_quantity": "Number of cylinders",
+        }
+        help_texts = {
+            "requested_quantity": "The system will cap selection at available filled cylinders.",
+        }
+
+    def __init__(self, *args, dealer, **kwargs):
+        self.dealer = dealer
+        super().__init__(*args, **kwargs)
+        self.fields["brand"].queryset = LPGBrand.objects.filter(
+            is_active=True,
+            dealer_authorizations__dealer=dealer,
+            dealer_authorizations__status=DealerBrandAuthorization.Status.ACTIVE,
+        ).distinct().order_by("brand_id")
+
+    def save(self, commit=True):
+        run = super().save(commit=False)
+        run.dealer = self.dealer
+        if commit:
+            run.save()
+        return run
+
+
+class CylinderReceiptForm(forms.Form):
+    brand = forms.ModelChoiceField(label="Brand", queryset=LPGBrand.objects.none())
+    quantity = forms.IntegerField(
+        min_value=1,
+        max_value=10000,
+        label="Filled cylinders received",
+    )
+    source_reference = forms.CharField(
+        max_length=120,
+        required=False,
+        label="Dispatch / receipt reference",
+    )
+
+    def __init__(self, *args, dealer, **kwargs):
+        self.dealer = dealer
+        super().__init__(*args, **kwargs)
+        self.fields["brand"].queryset = LPGBrand.objects.filter(
+            is_active=True,
+            dealer_authorizations__dealer=dealer,
+            dealer_authorizations__status=DealerBrandAuthorization.Status.ACTIVE,
+        ).distinct().order_by("brand_id")

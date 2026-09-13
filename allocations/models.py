@@ -35,6 +35,7 @@ class AllocationRun(models.Model):
         default=Status.QUEUED,
     )
     candidate_count = models.PositiveIntegerField(default=0)
+    stock_count = models.PositiveIntegerField(default=0)
     selected_count = models.PositiveIntegerField(default=0)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -73,6 +74,13 @@ class Allocation(models.Model):
         LPGApplication,
         on_delete=models.PROTECT,
         related_name="allocation",
+    )
+    cylinder_fill = models.OneToOneField(
+        "inventory.CylinderFill",
+        on_delete=models.PROTECT,
+        related_name="allocation",
+        null=True,
+        blank=True,
     )
     dealer = models.ForeignKey(
         DealerProfile,

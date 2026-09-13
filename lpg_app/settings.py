@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "dealers",
     "brands",
     "companies",
+    "inventory",
     "allocations",
 ]
 

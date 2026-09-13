@@ -7,13 +7,12 @@
 - [x] Add ranked `Allocation` records with priority and distance snapshots.
 - [x] Add an idempotent applicant-selection task entry point.
 - [x] Add optional private household coordinates for distance ranking.
-- [ ] Add dealer UI to create and monitor allocation runs.
+- [x] Add dealer UI to receive cylinders and create/monitor allocation runs.
+- [x] Add reusable cylinder-unit and filled-cycle records.
+- [x] Reserve available filled cylinders together with applicant allocations.
 
 ## Next slices
 
-- [ ] Add `CylinderUnit` and reusable `CylinderFill` inventory records.
-- [ ] Add dealer stock receipt and cylinder reservation transaction.
-- [ ] Link one reserved fill to each allocation.
 - [ ] Add dealer sale/invoice recording.
 - [ ] Add applicant receipt confirmation.
 - [ ] Add notification attempts and SMS/email provider abstraction.

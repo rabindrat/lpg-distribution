@@ -9,6 +9,12 @@
   </div>
   <span class="badge text-bg-light fs-6">{{ dealer.get_status_display }}</span>
 </div>
+{% if dealer.status == 'active' %}
+  <div class="d-flex gap-2 mb-4">
+    <a href="{% url 'dealer-receive-cylinders' %}" class="btn btn-outline-primary">Record received cylinders</a>
+    <a href="{% url 'dealer-create-allocation' %}" class="btn btn-primary">Create allocation run</a>
+  </div>
+{% endif %}
 <div class="row g-4">
   <div class="col-lg-7">
     <div class="card border-0 shadow-sm"><div class="card-body p-4">
@@ -39,4 +45,22 @@
     </div></div>
   </div>
 </div>
+{% if stock_summary %}
+  <div class="card border-0 shadow-sm mt-4"><div class="card-body p-4">
+    <h2 class="h5">Filled cylinders currently in stock</h2>
+    <div class="row g-2 mt-2">
+      {% for item in stock_summary %}
+        <div class="col-md-4"><div class="border rounded p-3"><strong>{{ item.brand__name_en }}</strong><br><span class="text-secondary">{{ item.count }} available</span></div></div>
+      {% endfor %}
+    </div>
+  </div></div>
+{% endif %}
+<div class="card border-0 shadow-sm mt-4"><div class="card-body p-4">
+  <h2 class="h5">Recent allocation runs</h2>
+  {% if runs %}
+    <div class="table-responsive mt-3"><table class="table table-sm align-middle mb-0"><thead><tr><th>Run</th><th>Brand</th><th>Requested</th><th>Stock</th><th>Selected</th><th>Status</th></tr></thead><tbody>
+      {% for run in runs %}<tr><td>#{{ run.id }}</td><td>{{ run.brand.name_en }}</td><td>{{ run.requested_quantity }}</td><td>{{ run.stock_count }}</td><td>{{ run.selected_count }}</td><td><span class="badge text-bg-light">{{ run.get_status_display }}</span></td></tr>{% endfor %}
+    </tbody></table></div>
+  {% else %}<p class="text-secondary mb-0 mt-3">No allocation runs yet.</p>{% endif %}
+</div></div>
 {% endblock %}

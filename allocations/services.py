@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from applicants.models import LPGApplication
 from dealers.models import DealerBrandAuthorization
+from inventory.models import CylinderFill, CylinderUnit
 
 from .models import Allocation, AllocationRun
 
@@ -80,10 +81,16 @@ def execute_allocation_run(run_id):
         return {
             "run_id": run.pk,
             "status": run.status,
+            "stock_count": run.stock_count,
             "selected_count": run.selected_count,
         }
     if run.status != AllocationRun.Status.QUEUED:
-        return {"run_id": run.pk, "status": run.status, "selected_count": 0}
+        return {
+            "run_id": run.pk,
+            "status": run.status,
+            "stock_count": run.stock_count,
+            "selected_count": 0,
+        }
     if run.dealer.status != run.dealer.Status.ACTIVE:
         raise ValueError("Allocation requires an active dealer")
     if not run.dealer.brand_authorizations.filter(
@@ -116,17 +123,35 @@ def execute_allocation_run(run_id):
     ranked.sort(key=_candidate_sort_key)
 
     run.candidate_count = len(ranked)
-    selected = ranked[: run.requested_quantity]
-    for rank, (application, distance) in enumerate(selected, start=1):
+    available_fills = list(
+        CylinderFill.objects.select_for_update()
+        .filter(
+            dealer=run.dealer,
+            brand=run.brand,
+            status=CylinderFill.Status.IN_STOCK,
+            cylinder_unit__status=CylinderUnit.Status.ACTIVE,
+        )
+        .order_by("filled_at", "pk")
+    )
+    run.stock_count = len(available_fills)
+    selected_fills = available_fills[: run.requested_quantity]
+    selected = ranked[: len(selected_fills)]
+    run.save(update_fields=["candidate_count", "stock_count", "updated_at"])
+    for rank, ((application, distance), fill) in enumerate(
+        zip(selected, selected_fills), start=1
+    ):
         Allocation.objects.create(
             run=run,
             application=application,
             dealer=run.dealer,
             brand=run.brand,
+            cylinder_fill=fill,
             rank=rank,
             priority_snapshot=application.priority,
             distance_meters=round(distance, 3) if distance is not None else None,
         )
+        fill.status = CylinderFill.Status.RESERVED
+        fill.save(update_fields=["status", "updated_at"])
         application.status = LPGApplication.Status.ALLOCATED
         application.save(update_fields=["status", "updated_at"])
 
@@ -146,5 +171,6 @@ def execute_allocation_run(run_id):
         "run_id": run.pk,
         "status": run.status,
         "candidate_count": run.candidate_count,
+        "stock_count": run.stock_count,
         "selected_count": run.selected_count,
     }

@@ -75,7 +75,7 @@ celery -A lpg_app worker --loglevel=INFO
 celery -A lpg_app beat --loglevel=INFO
 ```
 
-The first allocation slice is represented by the `allocations` app. It ranks P1 before P2, then known household-to-dealer distance, application creation time, and application ID. The ranking and the selected allocation records are saved transactionally. See [specs/delivery-allocation-plan.md](specs/delivery-allocation-plan.md) for the delivery milestones.
+The first allocation slice is represented by the `allocations` app and the cylinder inventory slice by `inventory`. Dealers can record received filled cylinders, then queue a run from the dashboard. The worker ranks P1 before P2, then known household-to-dealer distance, application creation time, and application ID; it reserves no more applicants than the available filled cylinders. See [specs/delivery-allocation-plan.md](specs/delivery-allocation-plan.md) for the delivery milestones.
 
 ## Dealer directory seed
 
