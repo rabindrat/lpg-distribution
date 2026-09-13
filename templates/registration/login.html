@@ -2,9 +2,8 @@
 {% load crispy_forms_tags %}
 {% block title %}Log in{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-5">
-    <div class="card border-0 shadow-sm">
+<div class="auth-layout auth-layout--login container">
+  <div class="auth-card auth-card--login card border-0 shadow-sm">
       <div class="card-body p-4 p-md-5">
         <h1 class="h3">Log in</h1>
         <p class="text-secondary">Use your registered mobile number and password.</p>
@@ -16,7 +15,6 @@
         </form>
         <p class="small text-secondary mt-4 mb-0">Need an account? <a href="{% url 'register' %}">Register here</a>.</p>
       </div>
-    </div>
   </div>
 </div>
 {% endblock %}
