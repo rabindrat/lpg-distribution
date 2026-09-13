@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "dealers",
     "brands",
     "companies",
+    "allocations",
 ]
 
 MIDDLEWARE = [
@@ -135,6 +136,25 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
+
+# Celery uses Redis for transport/result storage. PostgreSQL remains the
+# durable source of truth for allocation, cylinder, delivery, and audit data.
+CELERY_BROKER_URL = env(
+    "CELERY_BROKER_URL",
+    default=env("REDIS_URL", default="redis://localhost:6379/0"),
+)
+CELERY_RESULT_BACKEND = env(
+    "CELERY_RESULT_BACKEND",
+    default=CELERY_BROKER_URL,
+)
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_TASK_TIME_LIMIT = env.int("CELERY_TASK_TIME_LIMIT", default=15 * 60)
+CELERY_TASK_SOFT_TIME_LIMIT = env.int(
+    "CELERY_TASK_SOFT_TIME_LIMIT", default=12 * 60
+)
+CELERY_TIMEZONE = TIME_ZONE
 
 
 # Static files (CSS, JavaScript, Images)

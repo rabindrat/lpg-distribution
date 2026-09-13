@@ -41,6 +41,20 @@ class Household(models.Model):
     house_number = models.CharField(max_length=40)
     flat_unit = models.CharField("Flat / unit number", max_length=40, blank=True)
     family_size = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Optional private coordinate used for dealer-distance ranking.",
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Optional private coordinate used for dealer-distance ranking.",
+    )
     members = models.TextField(
         blank=True,
         help_text="Optional for the MVP; add household members one per line when needed for verification.",

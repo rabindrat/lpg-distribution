@@ -64,6 +64,19 @@ The company catalog is stored in `companies/data/nepal_lpg_companies.csv`. Its c
 
 The initial CSV links each row to the closest existing brand code (for example, Sugam/STC, Himal/Gauri Shankar, Shriram/Shreeram, and Ugrachandi/Lokpriya aliases). These mappings should be confirmed against the final regulatory/company master before production use.
 
+## Background allocation worker
+
+Applicant selection is queued through Celery and Redis. PostgreSQL remains the durable source of truth for allocation runs, ranked allocations, application status, and audit records.
+
+Run the worker processes locally with Redis available at `redis://localhost:6379/0`:
+
+```bash
+celery -A lpg_app worker --loglevel=INFO
+celery -A lpg_app beat --loglevel=INFO
+```
+
+The first allocation slice is represented by the `allocations` app. It ranks P1 before P2, then known household-to-dealer distance, application creation time, and application ID. The ranking and the selected allocation records are saved transactionally. See [specs/delivery-allocation-plan.md](specs/delivery-allocation-plan.md) for the delivery milestones.
+
 ## Dealer directory seed
 
 The collected dealer directory is stored in `dealers/data/kathmandu_valley_dealers.csv` and can be loaded with:
