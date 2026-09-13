@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from applicants.models import ApplicantProfile, Household, LPGApplication
 from brands.models import LPGBrand
-from dealers.models import DealerBrandAuthorization, DealerProfile
+from dealers.models import DealerBrandAuthorization, DealerCoverageArea, DealerProfile
 from inventory.models import CylinderFill
 from inventory.services import receive_cylinder_batch
 
@@ -49,6 +49,13 @@ class AllocationTaskTests(TestCase):
             brand=self.brand,
             status=DealerBrandAuthorization.Status.ACTIVE,
             is_primary=True,
+        )
+        DealerCoverageArea.objects.create(
+            dealer=self.dealer,
+            coverage_level=DealerCoverageArea.CoverageLevel.WARD,
+            municipality="Kathmandu",
+            ward="10",
+            created_by=self.user,
         )
 
     def create_application(self, username, category, latitude, longitude, brand=None):

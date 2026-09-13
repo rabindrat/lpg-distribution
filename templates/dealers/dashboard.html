@@ -13,6 +13,7 @@
   <div class="d-flex gap-2 mb-4">
     <a href="{% url 'dealer-receive-cylinders' %}" class="btn btn-outline-primary">Record received cylinders</a>
     <a href="{% url 'dealer-create-allocation' %}" class="btn btn-primary">Create allocation run</a>
+    <a href="{% url 'dealer-manage-coverage' %}" class="btn btn-outline-secondary">Manage coverage</a>
   </div>
 {% endif %}
 <div class="row g-4">
@@ -55,6 +56,12 @@
     </div>
   </div></div>
 {% endif %}
+<div class="card border-0 shadow-sm mt-4"><div class="card-body p-4">
+  <div class="d-flex justify-content-between align-items-center"><h2 class="h5 mb-0">Declared coverage areas</h2>{% if dealer.status == 'active' %}<a href="{% url 'dealer-manage-coverage' %}" class="small">Add coverage</a>{% endif %}</div>
+  {% if coverage_areas %}
+    <div class="d-flex flex-wrap gap-2 mt-3">{% for area in coverage_areas %}<span class="badge text-bg-light border">{{ area.get_coverage_level_display }}: {% if area.tole %}{{ area.tole }}{% else %}Ward {{ area.ward }}{% endif %}{% if area.municipality %}, {{ area.municipality }}{% endif %}</span>{% endfor %}</div>
+  {% else %}<p class="text-secondary mb-0 mt-3">No coverage areas declared. Allocation runs will select no applicants until a tole or ward is added.</p>{% endif %}
+</div></div>
 <div class="card border-0 shadow-sm mt-4"><div class="card-body p-4">
   <h2 class="h5">Recent allocation runs</h2>
   {% if runs %}

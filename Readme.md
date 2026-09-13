@@ -77,6 +77,12 @@ celery -A lpg_app beat --loglevel=INFO
 
 The first allocation slice is represented by the `allocations` app and the cylinder inventory slice by `inventory`. Dealers can record received filled cylinders, then queue a run from the dashboard. The worker ranks P1 before P2, then known household-to-dealer distance, application creation time, and application ID; it reserves no more applicants than the available filled cylinders. See [specs/delivery-allocation-plan.md](specs/delivery-allocation-plan.md) for the delivery milestones.
 
+## Location matching
+
+Household and dealer address components are optional. The original text is retained, while `locations.LocationUnit` can be used later to attach canonical municipality, ward, and tole references. Active dealers declare either tole or ward coverage at `/dealer/coverage/`. Allocation uses exact canonical references, normalized address context, or a conservative fuzzy tole match; unresolved locations remain outside automatic selection for review.
+
+The Kathmandu Valley pilot uses Kathmandu, Lalitpur, and Bhaktapur as its geographic scope. [LocalBoundaries](https://github.com/openknowledgenp/localboundaries) is the selected baseline for municipality/district boundary imports. A maintained NOC/dealer reference layer is still required for tole names and aliases because toles are not supplied as a complete administrative boundary level by that dataset.
+
 ## Dealer directory seed
 
 The collected dealer directory is stored in `dealers/data/kathmandu_valley_dealers.csv` and can be loaded with:

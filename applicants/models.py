@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import timezone
 
 from brands.models import LPGBrand
+from locations.models import LocationUnit
 
 
 def current_month_start():
@@ -35,10 +36,16 @@ class ApplicantProfile(models.Model):
 
 
 class Household(models.Model):
-    municipality = models.CharField(max_length=120)
-    ward = models.CharField(max_length=20)
-    tole = models.CharField("Tole / street", max_length=160)
-    house_number = models.CharField(max_length=40)
+    class LocationMatchConfidence(models.TextChoices):
+        UNRESOLVED = "unresolved", "Not resolved"
+        USER_ENTERED = "user_entered", "User entered"
+        CANONICAL = "canonical", "Canonical reference"
+        FUZZY = "fuzzy", "Fuzzy match"
+
+    municipality = models.CharField(max_length=120, blank=True)
+    ward = models.CharField(max_length=20, blank=True)
+    tole = models.CharField("Tole / street", max_length=160, blank=True)
+    house_number = models.CharField(max_length=40, blank=True)
     flat_unit = models.CharField("Flat / unit number", max_length=40, blank=True)
     family_size = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     latitude = models.DecimalField(
@@ -54,6 +61,19 @@ class Household(models.Model):
         null=True,
         blank=True,
         help_text="Optional private coordinate used for dealer-distance ranking.",
+    )
+    location_unit = models.ForeignKey(
+        LocationUnit,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="households",
+        help_text="Optional canonical municipality, ward, or tole reference.",
+    )
+    location_match_confidence = models.CharField(
+        max_length=20,
+        choices=LocationMatchConfidence.choices,
+        default=LocationMatchConfidence.UNRESOLVED,
     )
     members = models.TextField(
         blank=True,

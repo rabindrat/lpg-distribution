@@ -5,6 +5,7 @@ from django.db import models
 from django.utils import timezone
 
 from brands.models import LPGBrand
+from locations.models import LocationUnit
 
 
 class DealerProfile(models.Model):
@@ -29,11 +30,11 @@ class DealerProfile(models.Model):
     proprietor_name = models.CharField(max_length=160)
     mobile_number = models.CharField(max_length=20, unique=True)
     email = models.EmailField()
-    municipality = models.CharField(max_length=120)
-    ward = models.CharField(max_length=20)
-    tole = models.CharField("Tole / street", max_length=160)
-    address = models.CharField(max_length=240)
-    house_plot_number = models.CharField("House / plot number", max_length=60)
+    municipality = models.CharField(max_length=120, blank=True)
+    ward = models.CharField(max_length=20, blank=True)
+    tole = models.CharField("Tole / street", max_length=160, blank=True)
+    address = models.CharField(max_length=240, blank=True)
+    house_plot_number = models.CharField("House / plot number", max_length=60, blank=True)
     phones = models.JSONField(default=list, blank=True, encoder=DjangoJSONEncoder)
     brands = models.ManyToManyField(
         LPGBrand,
@@ -173,6 +174,62 @@ class DealerBrandAuthorization(models.Model):
 
     def __str__(self):
         return f"{self.dealer} — {self.brand}"
+
+
+class DealerCoverageArea(models.Model):
+    """A dealer's declared service area at tole or ward precision."""
+
+    class CoverageLevel(models.TextChoices):
+        TOLE = "tole", "Tole"
+        WARD = "ward", "Ward"
+
+    dealer = models.ForeignKey(
+        DealerProfile,
+        on_delete=models.PROTECT,
+        related_name="coverage_areas",
+    )
+    coverage_level = models.CharField(max_length=10, choices=CoverageLevel.choices)
+    municipality = models.CharField(max_length=120, blank=True)
+    ward = models.CharField(max_length=20, blank=True)
+    tole = models.CharField(max_length=160, blank=True)
+    location_unit = models.ForeignKey(
+        LocationUnit,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="dealer_coverage_areas",
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="created_dealer_coverage_areas",
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["municipality", "ward", "tole", "id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["dealer", "coverage_level", "municipality", "ward", "tole"],
+                name="one_dealer_coverage_area",
+            )
+        ]
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        if self.coverage_level == self.CoverageLevel.WARD and not self.ward:
+            raise ValidationError({"ward": "Ward coverage requires a ward number."})
+        if self.coverage_level == self.CoverageLevel.TOLE and not self.tole:
+            raise ValidationError({"tole": "Tole coverage requires a tole name."})
+        if self.coverage_level == self.CoverageLevel.WARD and self.tole:
+            raise ValidationError({"tole": "Ward coverage cannot include a tole name."})
+
+    def __str__(self):
+        label = self.tole if self.coverage_level == self.CoverageLevel.TOLE else f"Ward {self.ward}"
+        return f"{self.dealer} — {label}"
 
 
 class DealerRegistry(models.Model):

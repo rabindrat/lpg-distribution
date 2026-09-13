@@ -1,10 +1,15 @@
 from django.contrib import admin, messages
 
-from .models import DealerBrandAuthorization, DealerProfile, DealerRegistry
+from .models import DealerBrandAuthorization, DealerCoverageArea, DealerProfile, DealerRegistry
 
 
 class DealerBrandAuthorizationInline(admin.TabularInline):
     model = DealerBrandAuthorization
+    extra = 0
+
+
+class DealerCoverageAreaInline(admin.TabularInline):
+    model = DealerCoverageArea
     extra = 0
 
 
@@ -76,7 +81,21 @@ class DealerProfileAdmin(admin.ModelAdmin):
         "approved_at",
     )
     actions = [mark_pending_verification, mark_physically_verified, approve_dealers, reject_dealers]
-    inlines = [DealerBrandAuthorizationInline]
+    inlines = [DealerBrandAuthorizationInline, DealerCoverageAreaInline]
+
+
+@admin.register(DealerCoverageArea)
+class DealerCoverageAreaAdmin(admin.ModelAdmin):
+    list_display = (
+        "dealer",
+        "coverage_level",
+        "municipality",
+        "ward",
+        "tole",
+        "is_active",
+    )
+    list_filter = ("coverage_level", "is_active", "municipality")
+    search_fields = ("dealer__dealer_name", "municipality", "ward", "tole")
 
 
 @admin.register(DealerBrandAuthorization)

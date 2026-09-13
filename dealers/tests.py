@@ -8,7 +8,12 @@ from unittest.mock import patch
 from allocations.models import AllocationRun
 from inventory.models import CylinderFill
 
-from .models import DealerBrandAuthorization, DealerProfile, DealerRegistry
+from .models import (
+    DealerBrandAuthorization,
+    DealerCoverageArea,
+    DealerProfile,
+    DealerRegistry,
+)
 
 User = get_user_model()
 
@@ -51,6 +56,27 @@ class DealerFlowTests(TestCase):
                 dealer=dealer, brand_id=29, is_primary=True
             ).exists()
         )
+
+    def test_dealer_registration_allows_missing_address_components(self):
+        data = self.registration_data()
+        data.update(
+            {
+                "mobile_number": "+9779812345690",
+                "municipality": "",
+                "ward": "",
+                "tole": "",
+                "address": "",
+                "house_plot_number": "",
+            }
+        )
+        data["shop_photo"] = SimpleUploadedFile("shop.jpg", b"photo", content_type="image/jpeg")
+
+        response = self.client.post(reverse("dealer-register"), data)
+
+        self.assertRedirects(response, reverse("dealer-dashboard"))
+        dealer = DealerProfile.objects.get(mobile_number="+9779812345690")
+        self.assertEqual(dealer.municipality, "")
+        self.assertEqual(dealer.tole, "")
 
     def test_dealer_dashboard_requires_dealer_profile(self):
         user = User.objects.create_user(username="123456789", password="password")
@@ -185,3 +211,25 @@ class DealerFlowTests(TestCase):
             )
 
         self.assertRedirects(response, reverse("dealer-dashboard"))
+
+    def test_active_dealer_can_add_tole_coverage(self):
+        dealer = self.active_dealer()
+        self.client.force_login(dealer.user)
+        response = self.client.post(
+            reverse("dealer-manage-coverage"),
+            {
+                "coverage_level": DealerCoverageArea.CoverageLevel.TOLE,
+                "municipality": "Kathmandu",
+                "ward": "10",
+                "tole": "Baneshwor",
+            },
+        )
+
+        self.assertRedirects(response, reverse("dealer-dashboard"))
+        self.assertTrue(
+            DealerCoverageArea.objects.filter(
+                dealer=dealer,
+                coverage_level=DealerCoverageArea.CoverageLevel.TOLE,
+                tole="Baneshwor",
+            ).exists()
+        )

@@ -19,8 +19,9 @@
 
 ### Geography and household
 
+- `LocationUnit`: canonical municipality, ward, or tole reference, with parent hierarchy, aliases, district, and Kathmandu Valley scope.
 - `Municipality`, `Ward`, and optional `Tole` reference data.
-- `Household`: canonical household identity, address, location where appropriate, family size, status, verification state, and ownership metadata.
+- `Household`: canonical household identity, optional raw address text, optional location reference/coordinates, family size, status, verification state, and ownership metadata.
 - `HouseholdMember`: name/relationship/status only where required by approved policy.
 - `HouseholdAccountLink`: links one or more users to a household with evidence and audit history.
 - `DuplicateReview`: candidate household matches, confidence, reviewer, evidence, decision, and reason.
@@ -34,6 +35,7 @@
 - `Dealer`: legal/contact profile, address, GPS, ownership, status, and organization scope.
 - `DealerRegistry`: preloaded dealer/depot directory entry with source data, normalized `phones` array, brand, locality, and onboarding/claim state.
 - `DealerBrandAuthorization`: dealer-brand relationship, license/reference, validity, approval state; a dealer may be authorized for multiple brands from multiple companies.
+- `DealerCoverageArea`: dealer-declared coverage at tole or ward precision, retaining raw labels and optional canonical location references.
 - `DealerRegistration`: submitted registration snapshot and current workflow state.
 - `DealerVerification`: onsite checklist, verifier, GPS, distance result, photos/documents, decision, and timestamp.
 - `SupplySubmission`: company daily supply/production/dispatch snapshot.

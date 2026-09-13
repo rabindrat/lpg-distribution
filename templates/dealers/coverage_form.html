@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Manage coverage{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-7">
+  <div class="mb-4"><span class="text-primary fw-semibold">Dealer portal</span><h1 class="h3 mt-2">Add a coverage area</h1><p class="text-secondary">Use tole coverage when known. Ward coverage is available when tole names are incomplete or vary locally.</p></div>
+  <div class="card border-0 shadow-sm"><div class="card-body p-4">
+    <form method="post">{% csrf_token %}{{ form|crispy }}<div class="d-flex gap-2 mt-4"><button class="btn btn-primary">Add coverage</button><a href="{% url 'dealer-dashboard' %}" class="btn btn-outline-secondary">Cancel</a></div></form>
+  </div></div>
+</div></div>
+{% endblock %}

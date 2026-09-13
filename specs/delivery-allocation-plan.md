@@ -10,6 +10,9 @@
 - [x] Add dealer UI to receive cylinders and create/monitor allocation runs.
 - [x] Add reusable cylinder-unit and filled-cycle records.
 - [x] Reserve available filled cylinders together with applicant allocations.
+- [x] Keep applicant/dealer address text optional and preserve raw values.
+- [x] Add canonical location references and dealer tole/ward coverage records.
+- [x] Apply exact/normalized/fuzzy tole-or-ward coverage matching to allocations.
 
 ## Next slices
 
@@ -19,6 +22,15 @@
 - [ ] Add Celery Beat reminders, expiry checks, and escalation cases.
 - [ ] Add immutable workflow transitions and audit events.
 - [ ] Add company/NOC exception queues and reports.
+
+## Location decision
+
+- Kathmandu Valley is the pilot scope: Kathmandu, Lalitpur, and Bhaktapur districts.
+- Municipality/ward/tole reference fields are optional; the original text is retained for later enrichment.
+- Dealer coverage may be declared at either tole or ward precision.
+- Tole matching uses exact canonical references where available, normalized text, and a conservative fuzzy threshold; unresolved locations are not silently treated as matches.
+- Use [LocalBoundaries](https://github.com/openknowledgenp/localboundaries) as the baseline source for province/district/local-level boundary data. It publishes those administrative levels, not a complete authoritative tole layer.
+- Maintain the tole reference/alias layer through NOC and dealer data stewardship. The [nepal-geo-data package](https://github.com/bedbyaspokhrel/nepal-geo-data) may help bootstrap names and ward lists, but should not be treated as the regulatory source of truth.
 
 ## Operating rules
 

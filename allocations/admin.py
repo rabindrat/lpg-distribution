@@ -38,6 +38,8 @@ class AllocationAdmin(admin.ModelAdmin):
         "brand",
         "rank",
         "priority_snapshot",
+        "location_match_level",
+        "location_match_score",
         "distance_meters",
         "status",
     )
@@ -53,6 +55,8 @@ class AllocationAdmin(admin.ModelAdmin):
         "brand",
         "rank",
         "priority_snapshot",
+        "location_match_level",
+        "location_match_score",
         "distance_meters",
         "created_at",
         "updated_at",

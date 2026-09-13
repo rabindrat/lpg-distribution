@@ -10,7 +10,12 @@ from allocations.services import queue_allocation_run
 from inventory.models import CylinderFill
 from inventory.services import receive_cylinder_batch
 
-from .forms import CylinderReceiptForm, DealerAllocationRunForm, DealerRegistrationForm
+from .forms import (
+    CylinderReceiptForm,
+    DealerAllocationRunForm,
+    DealerCoverageAreaForm,
+    DealerRegistrationForm,
+)
 from .models import DealerProfile, DealerRegistry
 
 
@@ -53,6 +58,7 @@ def dashboard(request):
     if dealer is None:
         return redirect("dealer-register")
     runs = dealer.allocation_runs.select_related("brand").all()[:10]
+    coverage_areas = dealer.coverage_areas.filter(is_active=True).all()
     stock_summary = (
         CylinderFill.objects.filter(
             dealer=dealer,
@@ -65,7 +71,12 @@ def dashboard(request):
     return render(
         request,
         "dealers/dashboard.html",
-        {"dealer": dealer, "runs": runs, "stock_summary": stock_summary},
+        {
+            "dealer": dealer,
+            "runs": runs,
+            "stock_summary": stock_summary,
+            "coverage_areas": coverage_areas,
+        },
     )
 
 
@@ -123,5 +134,25 @@ def create_allocation_run(request):
     return render(
         request,
         "dealers/allocation_form.html",
+        {"dealer": dealer, "form": form},
+    )
+
+
+@login_required
+def manage_coverage(request):
+    dealer = get_object_or_404(DealerProfile, user=request.user)
+    if dealer.status != DealerProfile.Status.ACTIVE:
+        return HttpResponseForbidden("Only active dealers can manage coverage areas.")
+    form = DealerCoverageAreaForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        coverage = form.save(commit=False)
+        coverage.dealer = dealer
+        coverage.created_by = request.user
+        coverage.save()
+        messages.success(request, "Coverage area added. It will be used by the next allocation run.")
+        return redirect("dealer-dashboard")
+    return render(
+        request,
+        "dealers/coverage_form.html",
         {"dealer": dealer, "form": form},
     )

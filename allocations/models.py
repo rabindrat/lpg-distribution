@@ -94,6 +94,13 @@ class Allocation(models.Model):
     )
     rank = models.PositiveIntegerField()
     priority_snapshot = models.CharField(max_length=2)
+    location_match_level = models.CharField(max_length=10, blank=True)
+    location_match_score = models.DecimalField(
+        max_digits=4,
+        decimal_places=3,
+        null=True,
+        blank=True,
+    )
     distance_meters = models.DecimalField(
         max_digits=12,
         decimal_places=3,

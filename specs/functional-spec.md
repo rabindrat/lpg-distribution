@@ -50,6 +50,8 @@ The system is a single platform with role-specific interfaces:
 - The system supports password authentication and configurable OTP for registration, recovery, and sensitive actions.
 - Multiple applicant accounts may link to one household, but all linked accounts share one household entitlement.
 - Household records must support municipality, ward, tole/street, house number, flat/unit, family size, and members where required for verification.
+- Municipality, ward, tole, house number, and coordinates may be missing at registration. The system preserves raw user-entered values and supports later canonical enrichment.
+- For the Kathmandu Valley pilot, allocation matching uses dealer-declared tole coverage where available and ward coverage as a broader fallback. An unresolved location is held outside automatic matching rather than silently assigned.
 - The system must represent multiple households in one building as separate household records.
 - Household identity and duplicate resolution must be auditable and must not depend on mobile number alone.
 
@@ -89,6 +91,7 @@ The system is a single platform with role-specific interfaces:
 ### FR-5: Dealer self-registration and approval
 
 - Dealer registration captures legal/contact details, municipality/ward/tole, complete address, plot/house number, LPG brand authorization, license details, GPS, shop photo, and supporting documents.
+- Dealer address components are optional when unavailable; dealer GPS remains independently captured when possible. Active dealers may declare coverage areas at tole or ward precision.
 - The system may preload dealer directory entries. An applicant can select a matching entry to prefill registration; all listed contact numbers are retained, and a unique phone match can reconcile the directory entry automatically.
 - Seeded directory records remain unclaimed until a phone-verified onboarding flow claims them. A collision with an existing authenticated dealer account must not overwrite that account.
 - Dealer GPS and at least one fresh shop-front photo are proposed as mandatory.

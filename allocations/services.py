@@ -5,8 +5,9 @@ from django.db.models import Q
 from django.utils import timezone
 
 from applicants.models import LPGApplication
-from dealers.models import DealerBrandAuthorization
+from dealers.models import DealerBrandAuthorization, DealerCoverageArea
 from inventory.models import CylinderFill, CylinderUnit
+from locations.services import best_coverage_match
 
 from .models import Allocation, AllocationRun
 
@@ -58,7 +59,7 @@ def _distance_for_application(application, dealer):
 
 
 def _candidate_sort_key(item):
-    application, distance = item
+    application, distance, _, _ = item
     priority_rank = 0 if application.priority == "P1" else 1
     return (
         priority_rank,
@@ -116,10 +117,21 @@ def execute_allocation_run(run_id):
         )
         .order_by("created_at", "pk")
     )
+    coverages = list(
+        DealerCoverageArea.objects.filter(
+            dealer=run.dealer,
+            is_active=True,
+        )
+    )
     ranked = [
-        (application, _distance_for_application(application, run.dealer))
+        (
+            application,
+            _distance_for_application(application, run.dealer),
+            *best_coverage_match(application.household, coverages),
+        )
         for application in applications
     ]
+    ranked = [item for item in ranked if item[2] > 0]
     ranked.sort(key=_candidate_sort_key)
 
     run.candidate_count = len(ranked)
@@ -137,7 +149,7 @@ def execute_allocation_run(run_id):
     selected_fills = available_fills[: run.requested_quantity]
     selected = ranked[: len(selected_fills)]
     run.save(update_fields=["candidate_count", "stock_count", "updated_at"])
-    for rank, ((application, distance), fill) in enumerate(
+    for rank, ((application, distance, location_score, location_level), fill) in enumerate(
         zip(selected, selected_fills), start=1
     ):
         Allocation.objects.create(
@@ -148,6 +160,8 @@ def execute_allocation_run(run_id):
             cylinder_fill=fill,
             rank=rank,
             priority_snapshot=application.priority,
+            location_match_level=location_level,
+            location_match_score=round(location_score, 3),
             distance_meters=round(distance, 3) if distance is not None else None,
         )
         fill.status = CylinderFill.Status.RESERVED

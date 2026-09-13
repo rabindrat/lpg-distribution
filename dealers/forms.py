@@ -9,7 +9,7 @@ from allocations.models import AllocationRun
 from brands.models import LPGBrand
 from companies.roles import DEALER_GROUP
 
-from .models import DealerBrandAuthorization, DealerProfile, DealerRegistry
+from .models import DealerBrandAuthorization, DealerCoverageArea, DealerProfile, DealerRegistry
 
 User = get_user_model()
 
@@ -43,11 +43,11 @@ class DealerRegistrationForm(forms.Form):
         ],
     )
     email = forms.EmailField()
-    municipality = forms.CharField(max_length=120)
-    ward = forms.CharField(max_length=20)
-    tole = forms.CharField(max_length=160, label="Tole / street")
-    address = forms.CharField(max_length=240, label="Complete address")
-    house_plot_number = forms.CharField(max_length=60, label="House / plot number")
+    municipality = forms.CharField(max_length=120, required=False)
+    ward = forms.CharField(max_length=20, required=False)
+    tole = forms.CharField(max_length=160, required=False, label="Tole / street")
+    address = forms.CharField(max_length=240, required=False, label="Complete address")
+    house_plot_number = forms.CharField(max_length=60, required=False, label="House / plot number")
     brand = forms.ModelChoiceField(
         queryset=LPGBrand.objects.none(),
         required=False,
@@ -255,3 +255,31 @@ class CylinderReceiptForm(forms.Form):
             dealer_authorizations__dealer=dealer,
             dealer_authorizations__status=DealerBrandAuthorization.Status.ACTIVE,
         ).distinct().order_by("brand_id")
+
+
+class DealerCoverageAreaForm(forms.ModelForm):
+    class Meta:
+        model = DealerCoverageArea
+        fields = ["coverage_level", "municipality", "ward", "tole"]
+        labels = {
+            "coverage_level": "Coverage precision",
+            "municipality": "Municipality (optional)",
+            "ward": "Ward (optional for tole-only data)",
+            "tole": "Tole name (optional for ward coverage)",
+        }
+        help_texts = {
+            "tole": "Use the common local spelling; aliases and canonical references can be added later.",
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        level = cleaned.get("coverage_level")
+        ward = (cleaned.get("ward") or "").strip()
+        tole = (cleaned.get("tole") or "").strip()
+        if level == DealerCoverageArea.CoverageLevel.WARD and not ward:
+            self.add_error("ward", "Ward coverage requires a ward number.")
+        if level == DealerCoverageArea.CoverageLevel.TOLE and not tole:
+            self.add_error("tole", "Tole coverage requires a tole name.")
+        if level == DealerCoverageArea.CoverageLevel.WARD and tole:
+            self.add_error("tole", "Leave tole blank when declaring ward coverage.")
+        return cleaned

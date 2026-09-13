@@ -85,7 +85,7 @@ Use this as the working checklist for the Kathmandu Valley pilot. A checked item
 
 - [x] Add initial LPG company reference records and company-brand links.
 - [ ] Confirm the provisional company-to-brand alias mappings against the final regulatory/company master.
-- [ ] Add organization, municipality, ward, and tole reference models.
+- [x] Add initial municipality/ward/tole reference and dealer coverage models; boundary import and canonical tole stewardship remain pending.
 - [x] Add the initial LPG brand reference model and seed catalog.
 - [x] Replace applicant/dealer free-text brand entry with approved active-brand relationships; retain legacy text values for compatibility during migration.
 - [x] Add initial company membership groups and a scoped company supply-report dashboard.
@@ -124,7 +124,7 @@ Use this as the working checklist for the Kathmandu Valley pilot. A checked item
 - [ ] Add NOC dashboard KPIs and overdue/shortage exception queues.
 - [ ] Add company-scoped and municipality-scoped reports.
 - [ ] Add approved Excel/PDF exports with export auditing.
-- [ ] Add PostGIS dealer queries and a graceful map fallback when Google Maps is unavailable.
+- [ ] Add PostGIS dealer queries and a graceful map fallback when Google Maps is unavailable; current allocation matching uses optional text/canonical tole/ward coverage.
 - [ ] Add SMS/OTP provider integration and delivery notification templates.
 - [ ] Add versioned DRF API only when mobile or external integrations require it.
 

@@ -66,6 +66,17 @@ class ApplicantFlowTests(TestCase):
         self.assertIsNotNone(self.profile.household)
         self.assertEqual(self.profile.household.flat_unit, "A")
 
+    def test_household_form_allows_missing_address_components(self):
+        response = self.client.post(
+            reverse("household"),
+            {"family_size": "2"},
+        )
+
+        self.assertRedirects(response, reverse("apply"))
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.household.municipality, "")
+        self.assertEqual(self.profile.household.family_size, 2)
+
     def test_application_is_created_with_priority_and_due_date(self):
         household = Household.objects.create(
             municipality="Kathmandu Metropolitan City",
